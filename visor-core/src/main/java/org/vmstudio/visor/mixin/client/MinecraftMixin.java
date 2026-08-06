@@ -212,7 +212,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * @param renderLevel s
      * @return s
      */
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"), method = "runTick")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "runTick", index = 1)
     public boolean visor$startVRGuiPhase(boolean renderLevel) {
         if (VisorState.get().isActive()) {
 

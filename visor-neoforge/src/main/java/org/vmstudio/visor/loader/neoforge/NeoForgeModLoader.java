@@ -30,12 +30,12 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
@@ -80,7 +80,7 @@ public class NeoForgeModLoader implements ModLoader {
 
     @Override
     public @NotNull String getModVersion(@NotNull String id) {
-        if (isModLoaded(VisorAPI.MOD_ID)) {
+        if (isModLoaded(id)) {
             return FMLLoader.getLoadingModList()
                     .getModFileById(id).versionString();
         }
@@ -212,13 +212,22 @@ public class NeoForgeModLoader implements ModLoader {
         PayloadRegistrar channelRegistrar = registrar
                 .versioned(String.valueOf(channel.getNetworkVersion()));
         StreamCodec<RegistryFriendlyByteBuf, ChannelPayload> codec = channelCodec(id);
+        CustomPacketPayload.Type<ChannelPayload> type = new CustomPacketPayload.Type<>(id);
 
-        if (channel.hasPacketsToServer()) {
-            channelRegistrar.playToServer(new CustomPacketPayload.Type<>(id), codec,
+        if (channel.hasPacketsToServer() && channel.hasPacketsToClient()) {
+            // NeoForge's NetworkRegistry keys payloads by id only, so a channel id
+            // must be registered exactly once. For bidirectional channels register
+            // both directions in a single playBidirectional call and dispatch to
+            // the matching side handler.
+            channelRegistrar.playBidirectional(type, codec,
+                    new DirectionalPayloadHandler<>(
+                            (payload, context) -> handleToClient(payload, channel, context),
+                            (payload, context) -> handleToServer(payload, channel, context)));
+        } else if (channel.hasPacketsToServer()) {
+            channelRegistrar.playToServer(type, codec,
                     (payload, context) -> handleToServer(payload, channel, context));
-        }
-        if (channel.hasPacketsToClient()) {
-            channelRegistrar.playToClient(new CustomPacketPayload.Type<>(id), codec,
+        } else if (channel.hasPacketsToClient()) {
+            channelRegistrar.playToClient(type, codec,
                     (payload, context) -> handleToClient(payload, channel, context));
         }
     }
@@ -243,14 +252,30 @@ public class NeoForgeModLoader implements ModLoader {
     private void handleToServer(ChannelPayload payload, VisorChannel channel, IPayloadContext context) {
         var player = context.player();
         if (!(player instanceof net.minecraft.server.level.ServerPlayer sender)) {
+            payload.data().release();
             return;
         }
-        context.enqueueWork(() -> channel.handleToServer(payload.data(), sender,
-                p -> PacketDistributor.sendToPlayer(sender, makePayload(channel.getChannelId(), p))));
+        context.enqueueWork(() -> {
+            try {
+                channel.handleToServer(payload.data(), sender,
+                        p -> PacketDistributor.sendToPlayer(sender, makePayload(channel.getChannelId(), p)));
+            } finally {
+                // decode() hands the codec a copy of the inbound buffer; release it
+                // once the handler consumed it.
+                payload.data().release();
+            }
+        });
     }
 
     private void handleToClient(ChannelPayload payload, VisorChannel channel, IPayloadContext context) {
-        context.enqueueWork(() -> channel.handleToClient(payload.data()));
+        context.enqueueWork(() -> {
+            try {
+                channel.handleToClient(payload.data());
+            } finally {
+                // see handleToServer
+                payload.data().release();
+            }
+        });
     }
 
     @Override

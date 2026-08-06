@@ -30,6 +30,7 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -143,7 +144,7 @@ public abstract class GameRendererMixin
 
 
 
-    @Shadow public abstract void render(float f, long l, boolean bl);
+    @Shadow public abstract void render(DeltaTracker deltaTracker, boolean renderLevel);
 
     @Shadow
     private void renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks) {
@@ -157,8 +158,8 @@ public abstract class GameRendererMixin
     /**
      * Cancels GUI rendering for VRWorld stage and render VR main menu room
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V", cancellable = true)
-    public void visor$onRenderGUI(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V", cancellable = true)
+    public void visor$onRenderGUI(DeltaTracker deltaTracker, CallbackInfo info) {
 
         if (VRRenderState.getPhase().isNotVRWorld()) {
             // Proceed rendering GUI for Vanilla and VRGui stage
@@ -177,7 +178,7 @@ public abstract class GameRendererMixin
             //render VR main menu
             ClientContext.decorationRenderer.renderMainMenu(
                     poseStack,
-                    partialTicks
+                    deltaTracker.getGameTimeDeltaPartialTick(false)
             );
         }
     }
@@ -198,7 +199,7 @@ public abstract class GameRendererMixin
     /**
      * Draw GUI only after first level render
      */
-    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(FJZ)V", ordinal = 0, argsOnly = true)
+    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V", ordinal = 0, argsOnly = true)
     private boolean visor$renderGui(boolean doRender) {
         if (VRRenderState.getPhase().isVanilla()) {
             return doRender;
@@ -305,8 +306,8 @@ public abstract class GameRendererMixin
         info.setReturnValue(posestack.last().pose());
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V")
-    public void visor$matrix(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V")
+    public void visor$matrix(CallbackInfo info) {
         if(VisorState.get().isNotActive()) return;
         this.resetProjectionMatrix(
                 this.getProjectionMatrix(
@@ -418,7 +419,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At(value = "TAIL"), method = "renderLevel")
-    public void visor$restoreCamera(float f, long j, PoseStack p, CallbackInfo i) {
+    public void visor$restoreCamera(CallbackInfo i) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             this.visor$restoreCameraEntity(
                     this.minecraft.getCameraEntity()
@@ -541,7 +542,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At("TAIL"), method = "renderLevel")
-    public void visor$disableStencil(float f, long l, PoseStack poseStack, CallbackInfo ci) {
+    public void visor$disableStencil(CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             VREffectsHelper.disableStencilTest();
         }
@@ -586,7 +587,7 @@ public abstract class GameRendererMixin
         poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
         poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
     }
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(FJZ)V")
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphics guiGraphics, float partialTicks) {
         if(VRRenderState.getPhase().isVanilla()) {
             renderItemActivationAnimation(guiGraphics, partialTicks);
