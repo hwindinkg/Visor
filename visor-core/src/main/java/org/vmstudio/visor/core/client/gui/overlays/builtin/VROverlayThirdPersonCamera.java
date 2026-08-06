@@ -28,7 +28,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     public static final String ID = "third_person_camera";
 
     private final GuiTexture cameraTexture = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID, "textures/gui/overlays/camera.png"
             )
     );
@@ -149,6 +149,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     @Override
     public boolean mouseScrolled(double mouseX,
                                  double mouseY,
+                                 double horizontalDelta,
                                  double scrollDelta) {
         if(this.changingPosition){
             offsetZWaiting += (float) -scrollDelta * 0.01f;

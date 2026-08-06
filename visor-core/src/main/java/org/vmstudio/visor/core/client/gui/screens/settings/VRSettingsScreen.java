@@ -30,14 +30,14 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class VRSettingsScreen extends Screen {
 
     public static AtumColor INACTIVE_COLOR = AtumColor.immutable(91,91,91,255);
-    private static final ResourceLocation RESOURCE = new ResourceLocation(
+    private static final ResourceLocation RESOURCE = ResourceLocation.parse(
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;
     private static final int RESOURCE_HEIGHT = 260;
 
     public static final GuiTexture BACKGROUND = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/settings/background.png"
             ),
             0, 0,
@@ -432,7 +432,7 @@ public class VRSettingsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics) {
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
 
@@ -613,12 +613,12 @@ public class VRSettingsScreen extends Screen {
         return success;
     }
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double delta) {
         if(isOverCategoryList(mouseX, mouseY) && maxCategoryScroll() > 0){
             scrollCategories(delta < 0 ? 1 : -1);
             return true;
         }
-        options.mouseScrolled(mouseX, mouseY, delta);
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        options.mouseScrolled(mouseX, mouseY, 0.0, delta);
+        return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
     }
 }

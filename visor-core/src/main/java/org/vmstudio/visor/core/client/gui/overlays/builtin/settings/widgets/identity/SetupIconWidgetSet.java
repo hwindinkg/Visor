@@ -159,7 +159,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 return;
             }
 
-            var resourceLoc = new ResourceLocation(path);
+            var resourceLoc = ResourceLocation.parse(path);
 
 
             var resource = resourceManager.getResource(resourceLoc);

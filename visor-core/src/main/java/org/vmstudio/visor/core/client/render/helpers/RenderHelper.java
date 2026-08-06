@@ -81,10 +81,6 @@ public class RenderHelper {
 
 
         // --- Render ---
-        bufferBuilder.begin(
-                VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL
-        );
         for (int f = 0; f < faceIndices.length; f++) {
             Vector3f normal = faceNormals[f];
             for (int idx : faceIndices[f]) {
@@ -95,7 +91,7 @@ public class RenderHelper {
                 addVertex(bufferBuilder, poseMatrix, pos, color, normal);
             }
         }
-        BufferUploader.drawWithShader(bufferBuilder.end());
+        BufferUploader.drawWithShader(bufferBuilder.build());
     }
 
 
@@ -126,15 +122,13 @@ public class RenderHelper {
 
 
         // --- Render ---
-        bufferBuilder.begin(VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL);
         for (float[] vertex : vertices) {
             bufferBuilder.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
                     .color(r, g, b, a)
                     .normal(normal.x(), normal.y(), normal.z())
                     .endVertex();
         }
-        BufferUploader.drawWithShader(bufferBuilder.end());
+        BufferUploader.drawWithShader(bufferBuilder.build());
 
     }
 
@@ -165,16 +159,17 @@ public class RenderHelper {
         RenderSystem.setShaderColor(r, g, b, a);
 
         // --- Render ---
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_TEX);
+        BufferBuilder buf = Tesselator.getInstance().begin(
+                VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.POSITION_TEX
+        );
 
         for (float[] vertex : vertices) {
             buf.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
                     .uv(vertex[3], vertex[4])
                     .endVertex();
         }
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.build());
 
         // --- Restore ---
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -246,8 +241,7 @@ public class RenderHelper {
 
 
         // --- Render ---
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+        BufferBuilder buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
 
         for (int i = 0; i < 4; i++) {
             float x = pos[i][0], y = pos[i][1];
@@ -261,7 +255,7 @@ public class RenderHelper {
                     .endVertex();
         }
 
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.build());
 
         // --- Restore ---
         MC.gameRenderer.lightTexture().turnOffLightLayer();

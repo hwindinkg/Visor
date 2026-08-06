@@ -763,11 +763,12 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      *
      * @param mouseX the mouse position X
      * @param mouseY the mouse position Y
+     * @param horizontalDelta the horizontal scroll delta
      * @param scrollDelta the scroll delta
      *
      * @return if succeeded
      */
-    boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta);
+    boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double scrollDelta);
 
     /**
      * On Mouse moved

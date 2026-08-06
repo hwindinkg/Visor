@@ -266,7 +266,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 newScreen instanceof WinScreen ||
                 newScreen instanceof ReceivingLevelScreen ||
                 newScreen instanceof ProgressScreen ||
-                newScreen instanceof GenericDirtMessageScreen ||
+                newScreen instanceof LevelLoadingScreen ||
                 MC.getOverlay() != null;
     }
 
@@ -318,12 +318,12 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double scrollDelta) {
         // we use here screen directly
         // since the scrollDelta received is already calculated
         // and not applicable to InputHelper scroll method
         if(MC.screen != null){
-            return MC.screen.mouseScrolled(mouseX, mouseY, scrollDelta);
+            return MC.screen.mouseScrolled(mouseX, mouseY, 0.0, scrollDelta);
         }
         return false;
     }

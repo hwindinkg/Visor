@@ -40,17 +40,17 @@ public class VROverlaySettings extends VROverlayScreen
 
     public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.overlays.find");
 
-    private static final ResourceLocation BACKGROUND_OVERLAYS = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_OVERLAYS = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/bg_main_1.png"
     );
-    private static final ResourceLocation BACKGROUND_CREATE = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_CREATE = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/bg_main_2.png"
     );
 
-    private static final ResourceLocation BACKGROUND_EXTRA = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_EXTRA = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/bg_main_extra_1.png"
     );
-    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/bg_main_extra_2.png"
     );
 

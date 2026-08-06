@@ -125,9 +125,9 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        listWidget.mouseScrolled(mouseX, mouseY, delta);
-        return super.mouseScrolled(mouseX, mouseY, delta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double delta) {
+        listWidget.mouseScrolled(mouseX, mouseY, 0.0, delta);
+        return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
     }
 
     private void saveSelectedLayouts() {

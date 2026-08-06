@@ -82,7 +82,7 @@ public class MouseScrollHandler {
 
         focusedOverlay.mouseScrolled(
                 focusedOverlay.getMouseX(), focusedOverlay.getMouseY(),
-                scrollDelta
+                0.0, scrollDelta
         );
     }
 

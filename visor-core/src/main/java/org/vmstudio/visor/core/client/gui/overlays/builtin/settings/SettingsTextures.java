@@ -5,14 +5,14 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface SettingsTextures {
 
-    ResourceLocation RESOURCE = new ResourceLocation(
+    ResourceLocation RESOURCE = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/general_1.png"
     );
     int TEX_WIDTH = 179;
     int TEX_HEIGHT = 188;
 
     GuiTexture FILTER_BACKGROUND = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/overlays/settings/bg_main_filters.png"
             )
     );

@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface OptionsPoseTextures {
 
-    ResourceLocation RESOURCE_2 = new ResourceLocation(
+    ResourceLocation RESOURCE_2 = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/general_2.png"
     );
     int TEX_WIDTH_2 = 119;

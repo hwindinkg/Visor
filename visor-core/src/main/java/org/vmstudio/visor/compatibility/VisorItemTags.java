@@ -15,6 +15,6 @@ public class VisorItemTags {
     public static final TagKey<Item> SHIELDS = tag("shields");
 
     private static TagKey<Item> tag(String name) {
-        return TagKey.create(Registries.ITEM, new ResourceLocation("visor", name));
+        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("visor", name));
     }
 }

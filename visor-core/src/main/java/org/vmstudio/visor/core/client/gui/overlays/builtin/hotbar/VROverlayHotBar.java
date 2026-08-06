@@ -25,6 +25,7 @@ import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -49,29 +50,29 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     private static final int SLOT_NUMBERS_IMAGE_DIFF = (112-HOTBAR_IMAGE_SIZE)/2;
 
     private GuiTexture hotbarSlotNumbers = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/slot_numbers.png"
             )
     );
 
     private GuiTexture hotbarSelectedMain0Tex = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected0.png"
             )
     );
     private GuiTexture hotbarSelectedMain1Tex = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected1.png"
             )
     );
 
     private GuiTexture hotbarSelectedOffhand0Tex = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected0.png"
             )
     );
     private GuiTexture hotbarSelectedOffhand1Tex = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.fromNamespaceAndPath(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected1.png"
             )
     );
@@ -315,8 +316,8 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
         MutableComponent itemName = Component.empty()
                 .append(itemStack.getHoverName())
-                .withStyle(itemStack.getRarity().color);
-        if (itemStack.hasCustomHoverName()) {
+                .withStyle(itemStack.getRarity().color());
+        if (itemStack.getComponents().has(DataComponents.CUSTOM_NAME)) {
             itemName.withStyle(ChatFormatting.ITALIC);
         }
 

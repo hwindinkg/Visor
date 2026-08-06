@@ -442,7 +442,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double scrollDelta) {
         return false;
     }
 

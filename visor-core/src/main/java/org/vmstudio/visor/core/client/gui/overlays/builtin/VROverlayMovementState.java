@@ -23,7 +23,7 @@ public class VROverlayMovementState extends VROverlayScreen {
 
     protected final OverlayOptionsPose optionsPose;
 
-    protected static final ResourceLocation RESOURCE = new ResourceLocation(
+    protected static final ResourceLocation RESOURCE = ResourceLocation.parse(
             "visor:textures/gui/overlays/movement_state.png"
     );
     protected static final int TEX_WIDTH = 162;
