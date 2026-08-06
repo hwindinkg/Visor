@@ -6,6 +6,9 @@ loom{
     accessWidenerPath = file("src/main/resources/visor.accesswidener")
 }
 dependencies {
+    // net.neoforged.api.distmarker.OnlyIn/Dist (replaces fabric @Environment)
+    compileOnly "net.neoforged:mergetool:2.0.0:api"
+
     // ---- LOCAL DEPENDENCY
     modApi name: 'atumvr-api-1.14.0beta-snapshot#14'
     modApi name: 'atumvr-core-1.14.0beta-snapshot#14'
