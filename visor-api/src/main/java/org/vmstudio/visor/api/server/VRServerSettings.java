@@ -2,8 +2,8 @@ package org.vmstudio.visor.api.server;
 
 
 import lombok.Getter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 
 public class VRServerSettings {
@@ -111,7 +111,7 @@ public class VRServerSettings {
      *     it will send his configuration during handshake
      * </p>
      */
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void joinedDedicatedServer(){
         vrOnly = false;
         serverDebug = false;

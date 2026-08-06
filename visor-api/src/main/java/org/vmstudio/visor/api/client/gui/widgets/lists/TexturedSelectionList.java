@@ -8,8 +8,8 @@ import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSelectionList;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -452,7 +452,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //  TexturedRow — one row in the AbstractSelectionList, holds N entries
     // ══════════════════════════════════════════════════════════════════
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public class TexturedRow extends Entry<TexturedRow> {
 
         private final TexturedEntry[] entries;
@@ -578,7 +578,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //  TexturedEntry — a single logical entry (id + label)
     // ══════════════════════════════════════════════════════════════════
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static class TexturedEntry {
         @Getter
         private final String id;

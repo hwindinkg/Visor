@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.common.network;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient;
@@ -59,7 +59,7 @@ public enum VisorCorePayloadID {
         return values()[unsignedByte];
     }
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static VisorPayloadToClient readToClient(VisorCorePayloadID payloadID,
                                              FriendlyByteBuf buffer) {
         return switch (payloadID) {

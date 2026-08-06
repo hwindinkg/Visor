@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.render.VRSceneType;
 /**
  * Access point for client-side state values
  */
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public interface VisorClientState {
 
 
@@ -60,7 +60,7 @@ public interface VisorClientState {
     @NotNull
     VRSceneType sceneType();
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     final class Empty implements VisorClientState {
 
         public static final Empty INSTANCE = new Empty();

@@ -10,8 +10,8 @@ import org.vmstudio.visor.api.common.addon.AddonManager;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.eventbus.VREventBus;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +91,7 @@ public interface VisorAPI {
      * @return visor client
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     static VisorClient client(){
         return Instance.client;
     }
@@ -104,7 +104,7 @@ public interface VisorAPI {
      * @return visor client state
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     static VisorClientState clientState(){
         return Objects.requireNonNullElse(
                 Instance.clientState,
@@ -188,11 +188,11 @@ public interface VisorAPI {
             throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
         }
 
-        @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         private static VisorClient client;
 
         //empty implementation, before Visor initialized
-        @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         private static VisorClientState clientState;
 
 
@@ -206,13 +206,13 @@ public interface VisorAPI {
         private static HashMap<String,VisorAddon> preparedAddons = new LinkedHashMap<>();
 
         @ApiStatus.Internal
-        @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public static void setClient(final VisorClient api) {
             Instance.client = api;
         }
 
         @ApiStatus.Internal
-        @Environment(EnvType.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public static void setClientState(final VisorClientState api) {
             Instance.clientState = api;
         }

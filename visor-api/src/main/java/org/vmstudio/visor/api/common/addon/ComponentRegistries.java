@@ -20,8 +20,8 @@ import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.client.tasks.RegisterVisorTask;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,7 +38,7 @@ public interface ComponentRegistries {
      * @return task registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VisorTask> tasks();
 
     /**
@@ -49,7 +49,7 @@ public interface ComponentRegistries {
      * @return Action Set registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRActionSet> actionSets();
 
 
@@ -62,7 +62,7 @@ public interface ComponentRegistries {
      * @return VR decorator registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRDecorator> decorators();
 
     /**
@@ -73,7 +73,7 @@ public interface ComponentRegistries {
      * @return VR body type registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRBodyType> vrBodyTypes();
 
     /**
@@ -84,7 +84,7 @@ public interface ComponentRegistries {
      * @return VR game effect registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRGameEffect> gameEffects();
 
     /**
@@ -95,7 +95,7 @@ public interface ComponentRegistries {
      * @return VR hand effect registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRHandEffect> handEffects();
 
     /**
@@ -106,7 +106,7 @@ public interface ComponentRegistries {
      * @return VR hand item pose registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRHandItemPose> itemPoses();
 
 
@@ -119,7 +119,7 @@ public interface ComponentRegistries {
      * @return VR overlays registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VROverlay> overlays();
 
     /**
@@ -130,7 +130,7 @@ public interface ComponentRegistries {
      * @return VR overlay templates registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VROverlayTemplateRecord> overlayTemplates();
 
 
@@ -143,6 +143,6 @@ public interface ComponentRegistries {
      * @return VR settings presets registry instance
      */
     @NotNull
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     ComponentRegistry<VRSettingsPreset> settingsPresets();
 }

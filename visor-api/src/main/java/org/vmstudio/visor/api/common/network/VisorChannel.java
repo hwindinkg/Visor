@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network;
 
 import lombok.Getter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -60,7 +60,7 @@ public final class VisorChannel {
     }
 
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void handleToClient(@NotNull FriendlyByteBuf buffer) {
         if (toClientReader == null || toClientHandler == null) return;
         byte payloadId;
@@ -107,7 +107,7 @@ public final class VisorChannel {
 
     // CLIENT -> SERVER
 
-    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void sendToServer(@NotNull VisorPayloadToServer payload) {
         if (Minecraft.getInstance().getConnection() == null) return;
         Minecraft.getInstance().getConnection().send(
