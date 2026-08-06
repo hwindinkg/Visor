@@ -33,8 +33,7 @@ public class VREffectsHelper {
 
     public static void renderInBlockEffect() {
         // --- Prepare variables ---
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
         // orthographic matrix
         Matrix4f mat = new Matrix4f();
         mat.m00(1.0F);
@@ -52,12 +51,11 @@ public class VREffectsHelper {
         RenderSystem.disableCull();
 
         // --- Render ---
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, 1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, -1.5F, 1.5F, 0.0F).endVertex();
-        tesselator.end();
+        bufferbuilder.addVertex(mat, -1.5F, -1.5F, 0.0F);
+        bufferbuilder.addVertex(mat, 1.5F, -1.5F, 0.0F);
+        bufferbuilder.addVertex(mat, 1.5F, 1.5F, 0.0F);
+        bufferbuilder.addVertex(mat, -1.5F, 1.5F, 0.0F);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // --- Restore ---
         RenderStateHelper.restoreAfterExternalRender();
@@ -77,8 +75,7 @@ public class VREffectsHelper {
         ShaderInstance shader = wrap.getHandle();
 
         // --- Prepare variables ---
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         Matrix4f mat = new Matrix4f();
         mat.m00(1.0F);
         mat.m11(1.0F);
@@ -95,12 +92,11 @@ public class VREffectsHelper {
         RenderSystem.disableCull();
 
         // --- Render ---
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).uv(-0.25F, -0.25F).endVertex();
-        bufferbuilder.vertex(mat,  1.5F, -1.5F, 0.0F).uv( 1.25F, -0.25F).endVertex();
-        bufferbuilder.vertex(mat,  1.5F,  1.5F, 0.0F).uv( 1.25F,  1.25F).endVertex();
-        bufferbuilder.vertex(mat, -1.5F,  1.5F, 0.0F).uv(-0.25F,  1.25F).endVertex();
-        tesselator.end();
+        bufferbuilder.addVertex(mat, -1.5F, -1.5F, 0.0F).setUv(-0.25F, -0.25F);
+        bufferbuilder.addVertex(mat,  1.5F, -1.5F, 0.0F).setUv( 1.25F, -0.25F);
+        bufferbuilder.addVertex(mat,  1.5F,  1.5F, 0.0F).setUv( 1.25F,  1.25F);
+        bufferbuilder.addVertex(mat, -1.5F,  1.5F, 0.0F).setUv(-0.25F,  1.25F);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // --- Restore ---
         RenderStateHelper.restoreAfterExternalRender();
@@ -138,7 +134,7 @@ public class VREffectsHelper {
 
         // 1) backup shader + matrices
         RenderSystem.backupProjectionMatrix();
-        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().pushMatrix();
 
         try {
             enableStencilTest();
@@ -155,7 +151,7 @@ public class VREffectsHelper {
 
         } finally {
             // 2) restore matrices
-            RenderSystem.getModelViewStack().popPose();
+            RenderSystem.getModelViewStack().popMatrix();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
 
@@ -226,10 +222,9 @@ public class VREffectsHelper {
     private static void drawStencilMask(float[] verts) {
         if (verts == null || verts.length < 2) return;
 
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
+        BufferBuilder buf = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
 
-        // bind a simple 1×1 black texture so shader has "something"
+        // bind a simple 1x1 black texture so shader has "something"
         Minecraft.getInstance()
                 .getTextureManager()
                 .bindForSetup(TexturesHelper.getBlackTexture());
@@ -237,12 +232,11 @@ public class VREffectsHelper {
         float scale = ClientContext.renderer.renderScale;
         for (int i = 0; i < verts.length; i += 2) {
             buf
-                    .vertex(verts[i] * scale, verts[i+1] * scale, 0f)
-                    .endVertex();
+                    .addVertex(verts[i] * scale, verts[i+1] * scale, 0f);
         }
 
         RenderSystem.setShader(GameRenderer::getPositionShader);
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.buildOrThrow());
     }
 
     private static void restorePostStencilState() {

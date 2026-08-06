@@ -175,15 +175,17 @@ public class ClientUtils {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
         boolean bl = minecraft.isLocalServer();
-        boolean bl2 = minecraft.isConnectedToRealms();
+        boolean bl2 = minecraft.allowsRealms();
         var connection = minecraft.getConnection();
         if(connection != null){
             connection.getConnection().disconnect(Component.literal(message));
         }
         if (bl) {
-            minecraft.clearLevel(new ProgressScreen(Component.translatable("visor.messages.saving_world", message)));
+            ProgressScreen progressScreen = new ProgressScreen(true);
+            progressScreen.progressStart(Component.translatable("visor.messages.saving_world", message));
+            minecraft.clearClientLevel(progressScreen);
         } else {
-            minecraft.clearLevel();
+            minecraft.clearClientLevel(null);
         }
 
         TitleScreen titleScreen = new TitleScreen();

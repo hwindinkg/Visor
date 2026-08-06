@@ -12,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
@@ -214,7 +215,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 preYaw = 90;
 
                 float progress = 0.0F;
-                int riptideLevel = EnchantmentHelper.getRiptide(itemStack);
+                int riptideLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.RIPTIDE, itemStack);
 
                 if (player.isUsingItem()
                         && player.getUseItemRemainingTicks() > 0

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(FishingHook.class)
-public abstract class FishingHookMixin extends Projectile {
+public abstract class FishingHookMixin extends FishingHook {
 
     @Shadow
     private boolean biting;
@@ -30,7 +30,7 @@ public abstract class FishingHookMixin extends Projectile {
     @Shadow
     public abstract Player getPlayerOwner();
 
-    public FishingHookMixin(EntityType<Projectile> entityType,
+    public FishingHookMixin(EntityType<? extends FishingHook> entityType,
                             Level level) {
         super(entityType, level);
     }

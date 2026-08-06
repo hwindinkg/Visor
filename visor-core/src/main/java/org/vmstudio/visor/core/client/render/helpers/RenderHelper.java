@@ -123,10 +123,9 @@ public class RenderHelper {
 
         // --- Render ---
         for (float[] vertex : vertices) {
-            bufferBuilder.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
-                    .color(r, g, b, a)
-                    .normal(normal.x(), normal.y(), normal.z())
-                    .endVertex();
+            bufferBuilder.addVertex(poseMatrix, vertex[0], vertex[1], vertex[2])
+                    .setColor(r, g, b, a)
+                    .setNormal(normal.x(), normal.y(), normal.z());
         }
         BufferUploader.drawWithShader(bufferBuilder.build());
 
@@ -165,9 +164,8 @@ public class RenderHelper {
         );
 
         for (float[] vertex : vertices) {
-            buf.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
-                    .uv(vertex[3], vertex[4])
-                    .endVertex();
+            buf.addVertex(poseMatrix, vertex[0], vertex[1], vertex[2])
+                    .setUv(vertex[3], vertex[4]);
         }
         BufferUploader.drawWithShader(buf.build());
 
@@ -246,13 +244,12 @@ public class RenderHelper {
         for (int i = 0; i < 4; i++) {
             float x = pos[i][0], y = pos[i][1];
             float u = uv[i][0], v = uv[i][1];
-            buf.vertex(poseMatrix, x, y, 0f)
-                    .color(red, green, blue, alpha)
-                    .uv(u, v)
-                    .overlayCoords(OverlayTexture.NO_OVERLAY)
-                    .uv2(light)
-                    .normal(0f, 0f, 1f)
-                    .endVertex();
+            buf.addVertex(poseMatrix, x, y, 0f)
+                    .setColor(red, green, blue, alpha)
+                    .setUv(u, v)
+                    .setOverlay(OverlayTexture.NO_OVERLAY)
+                    .setUv2(light & 0xFFFF, light >> 16 & 0xFFFF)
+                    .setNormal(0f, 0f, 1f);
         }
 
         BufferUploader.drawWithShader(buf.build());
@@ -345,9 +342,8 @@ public class RenderHelper {
                                   Vector3fc pos,
                                   AtumColor color,
                                   Vector3fc normal) {
-        buff.vertex(mat, pos.x(), pos.y(), pos.z())
-                .color(color.getRedInt(), color.getGreenInt(), color.getBlueInt(), (byte) color.getAlphaInt())
-                .normal(normal.x(), normal.y(), normal.z())
-                .endVertex();
+        buff.addVertex(mat, pos.x(), pos.y(), pos.z())
+                .setColor(color.getRedInt(), color.getGreenInt(), color.getBlueInt(), (byte) color.getAlphaInt())
+                .setNormal(normal.x(), normal.y(), normal.z());
     }
 }

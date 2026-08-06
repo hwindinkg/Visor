@@ -250,13 +250,13 @@ public final class VRMenuSkyCanvas implements VREventListener {
             RenderSystem.setShaderTexture(0, whiteTex);
         }
 
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
         float dashSpan = aim.distance - CURSOR_DASH_START;
         for (int i = 0; i < CURSOR_DASH_COUNT; i++) {
             float nearFrac = i / (float) CURSOR_DASH_COUNT;
             float farFrac = (i + CURSOR_DASH_DUTY) / (float) CURSOR_DASH_COUNT;
             float nearDist = CURSOR_DASH_START + dashSpan * nearFrac * nearFrac;
             float farDist = CURSOR_DASH_START + dashSpan * farFrac * farFrac;
+            BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             RenderHelper.renderCuboid(
                     builder, poseMatrix,
                     new Vector3f(0, 0, -nearDist),
@@ -277,7 +277,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
 
             float hitDistance = aim.distance;
             float seconds = (float) ((Util.getMillis() % 100_000L) / 1000.0);
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             float ringRadius = hitDistance * ERASE_RING_SIN;
             float spinAngle = seconds * ERASE_RING_SPIN;
             for (int i = 0; i < ERASE_RING_DOTS; i++) {
@@ -288,7 +288,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
             }
             markerQuad(builder, poseMatrix, 0, 0, -hitDistance, 0.35f, colorInt, 120);
 
-            BufferUploader.drawWithShader(builder.end());
+            BufferUploader.drawWithShader(builder.buildOrThrow());
         }
 
         // --- restore GL ---
@@ -301,10 +301,10 @@ public final class VRMenuSkyCanvas implements VREventListener {
 
     private static void markerQuad(BufferBuilder builder, Matrix4f poseMatrix, float cx, float cy, float z,
                                    float halfSize, int[] color, int a) {
-        builder.vertex(poseMatrix, cx - halfSize, cy - halfSize, z).uv(0f, 0f).color(color[0], color[1], color[2], a).endVertex();
-        builder.vertex(poseMatrix, cx + halfSize, cy - halfSize, z).uv(1f, 0f).color(color[0], color[1], color[2], a).endVertex();
-        builder.vertex(poseMatrix, cx + halfSize, cy + halfSize, z).uv(1f, 1f).color(color[0], color[1], color[2], a).endVertex();
-        builder.vertex(poseMatrix, cx - halfSize, cy + halfSize, z).uv(0f, 1f).color(color[0], color[1], color[2], a).endVertex();
+        builder.addVertex(poseMatrix, cx - halfSize, cy - halfSize, z).setUv(0f, 0f).setColor(color[0], color[1], color[2], a);
+        builder.addVertex(poseMatrix, cx + halfSize, cy - halfSize, z).setUv(1f, 0f).setColor(color[0], color[1], color[2], a);
+        builder.addVertex(poseMatrix, cx + halfSize, cy + halfSize, z).setUv(1f, 1f).setColor(color[0], color[1], color[2], a);
+        builder.addVertex(poseMatrix, cx - halfSize, cy + halfSize, z).setUv(0f, 1f).setColor(color[0], color[1], color[2], a);
     }
 
     // ---- AIM MATH ----

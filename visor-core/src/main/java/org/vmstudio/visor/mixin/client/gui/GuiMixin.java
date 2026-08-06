@@ -75,17 +75,17 @@ public abstract class GuiMixin implements GuiExtension {
         }
     }
     @Redirect(at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;III)V"),
+            target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V"),
             method = "render")
     public void visor$noVanillaGuiChat(ChatComponent instance,
                                        GuiGraphics guiGraphics,
-                                       int i, int j, int k) {
+                                       int i, int j, int k, boolean bl) {
         if(VisorState.get().isNotActive()) {
-            instance.render(guiGraphics,i,j,k);
+            instance.render(guiGraphics,i,j,k,bl);
             return;
         }
         if(minecraft.screen instanceof ChatScreen) {
-            instance.render(guiGraphics, i, j, k);
+            instance.render(guiGraphics, i, j, k, bl);
         }
     }
 

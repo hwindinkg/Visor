@@ -12,8 +12,10 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.block.Blocks;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -138,8 +140,9 @@ public class VRShaderPostProcessEye implements VRShader{
             ItemStack headItem = MC.player.getInventory().getArmor(3);
 
             if(VRClientSettings.isPumpkinEffectEnabled()) {
+                CustomModelData customModelData = headItem.get(DataComponents.CUSTOM_MODEL_DATA);
                 boolean hasPumpkin = headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
-                        && (!headItem.hasTag() || headItem.getTag().getInt("CustomModelData") == 0);
+                        && (customModelData == null || customModelData.value() == 0);
                 if (hasPumpkin) {
                     vignetteColor = PUMPKIN_VIGNETTE_COLOR;
                     vignetteRadius = 0.3f;

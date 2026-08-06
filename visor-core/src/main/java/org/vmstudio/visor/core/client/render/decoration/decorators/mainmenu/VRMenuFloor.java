@@ -27,7 +27,7 @@ public final class VRMenuFloor {
             float length = area.y + i * 2;
 
             poseStack.pushPose();
-            RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderTexture(0, floorTexture);
 
             int r = 128, g = 128, b = 128;
