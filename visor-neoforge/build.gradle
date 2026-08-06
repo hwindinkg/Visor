@@ -4,22 +4,11 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge()
 }
 loom {
-    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
-
-    forge {
-        convertAccessWideners = true
-        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-
-        mixinConfig "visor.mixins.json"
-        mixinConfig "visor.sodium.mixins.json"
-        mixinConfig "visor.replaymod.mixins.json"
-        mixinConfig "visor.flashback.mixins.json"
-        mixinConfig "visor.dh.mixins.json"
-        mixinConfig "visor.iris.mixins.json"
-        mixinConfig "visor.mixins.forge.json"
+    neoForge {
+        accessTransformer project(":visor-api").file("src/main/resources/visor.accesstransformer.cfg")
     }
 }
 
@@ -33,27 +22,26 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
-version = version+"+mc"+libs.versions.minecraftVersion.get()+"-forge"
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-neoforge"
 
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
 
     shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":visor-core", configuration: "transformProductionForge")) { transitive = false }
+    shadowCommon(project(path: ":visor-core", configuration: "transformProductionNeoForge")) { transitive = false }
     common(project(path: ":visor-core", configuration: "namedElements")) { transitive false }
 
 
     //
     String lwjglVersion = "${libs.versions.lwjgl.get()}"
-    String forgeVersion = "${libs.versions.minecraftVersion.get()}-${libs.versions.forgeVersion.get()}"
 
-    forge "net.minecraftforge:forge:$forgeVersion"
+    neoForge "net.neoforged:neoforge:${libs.versions.neoforge.get()}"
     //mixin extras
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"))
-    implementation(include("io.github.llamalad7:mixinextras-forge:${libs.versions.mixinExtras.get()}"))
+    implementation(include("io.github.llamalad7:mixinextras-neoforge:${libs.versions.mixinExtras.get()}"))
 
 
 
@@ -67,10 +55,6 @@ dependencies {
 
 
 
-    forgeRuntimeLibrary(libs.lwjgl.openxr)
-    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux")
-    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows")
-
     // shadow the natives
     bundle(libs.lwjgl.openxr) { transitive = false }
     bundle("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux") { transitive = false }
@@ -81,7 +65,7 @@ dependencies {
 processResources {
     inputs.property "version", parent.version
 
-    filesMatching("META-INF/mods.toml") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": parent.version
     }
 }
