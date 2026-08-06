@@ -70,12 +70,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     @Shadow
     public static boolean ON_OSX;
 
-    @Shadow
-    private boolean pause;
-
-    @Shadow
-    private float pausePartialTick;
-
     @Final
     @Shadow
     private DeltaTracker.Timer timer;
@@ -597,6 +591,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Override
     public float visor$getPartialTicks() {
-        return pause ? pausePartialTick : this.timer.getGameTimeDeltaPartialTick(true);
+        return this.timer.getGameTimeDeltaPartialTick(true);
     }
 }

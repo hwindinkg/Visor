@@ -30,7 +30,6 @@
     "client.player.PlayerMixin",
     "client.renderer.GameRendererMixin",
     "client.renderer.LevelRendererMixin",
-    "client.renderer.NoSodiumLevelRendererMixin",
     "client.renderer.PostChainMixin",
     "client.renderer.VRLightsMixins$ClientLevelMixin",
     "client.renderer.VRLightsMixins$LevelLightEngineMixin",

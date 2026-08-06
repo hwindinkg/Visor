@@ -153,7 +153,6 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)
                 || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
             if (this.visor$walkUpBlocksActive) {
-                setMaxUpStep(0.6F);
                 this.visor$walkUpBlocksActive = false;
             }
             original.call(type, pos);
@@ -186,7 +185,6 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             if (VRClientSettings.isWalkUpEnabled()
                     && this.visor$walkUpBlocksActive
                     && visor$isApproachingInteractable(pos)) {
-                this.setMaxUpStep(0.6F);
                 this.visor$walkUpBlocksActive = false;
             }
 
@@ -196,13 +194,8 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 boolean smartBlocked = visor$isApproachingInteractable(this.getDeltaMovement());
                 this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F
                         && !smartBlocked;
-                this.setMaxUpStep(
-                        this.visor$walkUpBlocksActive
-                                ? 1.0F : 0.6F
-                );
             } else {
                 if (this.visor$walkUpBlocksActive) {
-                    this.setMaxUpStep(0.6F);
                     this.visor$walkUpBlocksActive = false;
                 }
                 this.updateAutoJump(

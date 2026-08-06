@@ -3,12 +3,9 @@ package org.vmstudio.visor.mixin.client.world;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -18,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(FishingHook.class)
-public abstract class FishingHookMixin extends FishingHook {
+public abstract class FishingHookMixin {
 
     @Shadow
     private boolean biting;
@@ -29,11 +26,6 @@ public abstract class FishingHookMixin extends FishingHook {
 
     @Shadow
     public abstract Player getPlayerOwner();
-
-    public FishingHookMixin(EntityType<? extends FishingHook> entityType,
-                            Level level) {
-        super(entityType, level);
-    }
 
 
     @Inject(at = @At(value = "HEAD"), method = "tick")

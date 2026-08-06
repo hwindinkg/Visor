@@ -60,8 +60,6 @@ public abstract class Common_EntityMixin {
 
     @Shadow public abstract boolean isSilent();
 
-    @Shadow public abstract void setMaxUpStep(float maxUpStep);
-
     @Shadow protected Vec3 stuckSpeedMultiplier;
 
     @Shadow public abstract void setOnGround(boolean onGround);
