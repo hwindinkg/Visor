@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRCameraEntityCache;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -79,4 +80,6 @@ public interface GameRendererExtension {
     VRCameraEntityCache visor$getCameraEntityCache();
 
     Matrix4f visor$getThirdPersonProjection();
+
+    void visor$renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks);
 }

@@ -2,6 +2,7 @@ package org.vmstudio.visor.loader.neoforge.mixin;
 
 import net.minecraft.client.Camera;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -22,11 +23,14 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 @Mixin(Camera.class)
 public class NeoForgeGameRendererVRMixin {
 
+    @Shadow
+    private void setRotation(float yaw, float pitch) { throw new AssertionError(); }
+
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 0), method = "setup")
     public void removeVanillaCameraRotation(Camera camera, float yaw, float pitch) {
         if (VRRenderState.getPhase().isVanilla()
                 || !VRRenderState.getRenderPass().isEye()) {
-            camera.setRotation(yaw, pitch);
+            this.setRotation(yaw, pitch);
         }
     }
 

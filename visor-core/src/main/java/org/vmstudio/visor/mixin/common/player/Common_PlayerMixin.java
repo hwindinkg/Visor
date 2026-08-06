@@ -1,16 +1,21 @@
 package org.vmstudio.visor.mixin.common.player;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Inventory;
@@ -223,7 +228,12 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
             return original.call(selfEntity);
         }
         if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
-            return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
+            return EnchantmentHelper.getItemEnchantmentLevel(
+                    self.level().registryAccess()
+                            .registryOrThrow(Registries.ENCHANTMENT)
+                            .getHolderOrThrow(Enchantments.KNOCKBACK),
+                    self.getOffhandItem()
+            );
         }
         return original.call(selfEntity);
     }
@@ -241,12 +251,12 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         // Strip mainhand modifiers, apply offhand modifiers as if it were mainhand
         if (!main.isEmpty()) {
             self.getAttributes().removeAttributeModifiers(
-                    main.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                    visor$mainhandAttributeModifiers(main)
             );
         }
         if (!off.isEmpty()) {
             self.getAttributes().addTransientAttributeModifiers(
-                    off.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                    visor$mainhandAttributeModifiers(off)
             );
         }
 
@@ -256,15 +266,22 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
             // Always restore, even if action.get() threw
             if (!off.isEmpty()) {
                 self.getAttributes().removeAttributeModifiers(
-                        off.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                        visor$mainhandAttributeModifiers(off)
                 );
             }
             if (!main.isEmpty()) {
                 self.getAttributes().addTransientAttributeModifiers(
-                        main.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                        visor$mainhandAttributeModifiers(main)
                 );
             }
         }
+    }
+
+    @Unique
+    private static Multimap<Holder<Attribute>, AttributeModifier> visor$mainhandAttributeModifiers(ItemStack stack) {
+        Multimap<Holder<Attribute>, AttributeModifier> modifiers = LinkedHashMultimap.create();
+        stack.forEachModifier(EquipmentSlotGroup.MAINHAND, modifiers::put);
+        return modifiers;
     }
 
 

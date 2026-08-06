@@ -146,7 +146,9 @@ public abstract class GameRendererMixin
     @Shadow public abstract void render(float f, long l, boolean bl);
 
     @Shadow
-    public abstract void renderItemActivationAnimation(int i, int j, float par1);
+    private void renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks) {
+        throw new AssertionError();
+    }
 
     /* ******************* *\
   //--------RENDERING--------\\
@@ -246,7 +248,7 @@ public abstract class GameRendererMixin
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         if(renderPass == VRRenderPass.EYE_LEFT){
-            posestack.mulPoseMatrix(
+            posestack.mulPose(
                     ClientContext.renderer.getEyeProjection(EyeType.LEFT)
             );
             info.setReturnValue(
@@ -255,7 +257,7 @@ public abstract class GameRendererMixin
             return;
         }
         if (renderPass == VRRenderPass.EYE_RIGHT) {
-            posestack.mulPoseMatrix(
+            posestack.mulPose(
                     ClientContext.renderer.getEyeProjection(EyeType.RIGHT)
             );
             info.setReturnValue(posestack.last().pose());
@@ -263,7 +265,7 @@ public abstract class GameRendererMixin
         }
         if (renderPass == VRRenderPass.THIRD_PERSON) {
             if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
-                posestack.mulPoseMatrix(
+                posestack.mulPose(
                         new Matrix4f().setPerspective(
                                 VRClientSettings.getMixedRealityFov() * 0.01745329238474369F,
                                 VRClientSettings.getMixedRealityAspectRatio(), this.visor$nearClipPlane,
@@ -271,7 +273,7 @@ public abstract class GameRendererMixin
                         )
                 );
             }else {
-                posestack.mulPoseMatrix(
+                posestack.mulPose(
                         new Matrix4f().setPerspective(
                                 VRClientSettings.getThirdPersonFov() * 0.01745329238474369F,
                                 (float) this.minecraft.getWindow().getScreenWidth()
@@ -289,7 +291,7 @@ public abstract class GameRendererMixin
             posestack.translate(this.zoomX, -this.zoomY, 0.0D);
             posestack.scale(this.zoom, this.zoom, 1.0F);
         }
-        posestack.mulPoseMatrix(
+        posestack.mulPose(
                 new Matrix4f()
                         .setPerspective(
                                 (float) d * Mth.DEG_TO_RAD,
@@ -442,13 +444,13 @@ public abstract class GameRendererMixin
 
         HitResult hitResult = visor$pickBlock(
                 renderPose.getHand(hand),
-                this.minecraft.gameMode.getPickRange(),
+                this.minecraft.player.blockInteractionRange(),
                 false
         );
         this.minecraft.hitResult = hitResult;
         Vec3 fallbackCrossVec = visor$aimedPointAtDistance(
                 renderPose.getHand(hand),
-                this.minecraft.gameMode.getPickRange()
+                this.minecraft.player.blockInteractionRange()
         );
         this.visor$crossVec = hitResult != null && hitResult.getType() != HitResult.Type.MISS
                 ? hitResult.getLocation()
@@ -584,11 +586,16 @@ public abstract class GameRendererMixin
         poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
         poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
     }
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
-    private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(FJZ)V")
+    private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphics guiGraphics, float partialTicks) {
         if(VRRenderState.getPhase().isVanilla()) {
-            renderItemActivationAnimation(i, j, f);
+            renderItemActivationAnimation(guiGraphics, partialTicks);
         }
+    }
+
+    @Unique
+    public void visor$renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks) {
+        this.renderItemActivationAnimation(guiGraphics, partialTicks);
     }
     @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
     private void visor$noItemTranslate(PoseStack poseStack, float x, float y, float z) {

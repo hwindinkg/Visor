@@ -8,6 +8,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
@@ -215,7 +216,12 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 preYaw = 90;
 
                 float progress = 0.0F;
-                int riptideLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.RIPTIDE, itemStack);
+                int riptideLevel = EnchantmentHelper.getItemEnchantmentLevel(
+                        player.level().registryAccess()
+                                .registryOrThrow(Registries.ENCHANTMENT)
+                                .getHolderOrThrow(Enchantments.RIPTIDE),
+                        itemStack
+                );
 
                 if (player.isUsingItem()
                         && player.getUseItemRemainingTicks() > 0
@@ -223,7 +229,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
                     if (riptideLevel <= 0 || player.isInWaterOrRain()) {
                         progress =
-                                itemStack.getUseDuration() - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
+                                itemStack.getUseDuration(player) - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
 
                         if (progress > TridentItem.THROW_THRESHOLD_TIME) {
                             float rotationProgress = progress - TridentItem.THROW_THRESHOLD_TIME;

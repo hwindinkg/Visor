@@ -103,9 +103,7 @@ public class HandEffectTeleport extends VRHandEffect {
         MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS,
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         double VOffset = lastArcDisplayOffset;
@@ -182,7 +180,7 @@ public class HandEffectTeleport extends VRHandEffect {
 
             float shift = (float) progress * 2.0F;
             renderBox(
-                    tesselator,
+                    builder,
                     start, end,
                     -segmentHalfWidth, segmentHalfWidth,
                     (-1.0F + shift) * segmentHalfWidth,
@@ -192,7 +190,7 @@ public class HandEffectTeleport extends VRHandEffect {
                     poseStack
             );
         }
-        tesselator.end();
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         // Custom Shader Landing Pad Effect using our own shader
         if (validLocation && TaskTeleport.getInstance().isArcActive()) {
@@ -246,7 +244,7 @@ public class HandEffectTeleport extends VRHandEffect {
     }
 
 
-    public static void renderBox(Tesselator tes, Vec3 start, Vec3 end,
+    public static void renderBox(BufferBuilder builder, Vec3 start, Vec3 end,
                                  float minX, float maxX,
                                  float minY, float maxY,
                                  Vec3i color, byte alpha,
@@ -274,50 +272,48 @@ public class HandEffectTeleport extends VRHandEffect {
         Vec3 frontLeftBottom = end.add(left.x + down.x, left.y + down.y, left.z + down.z);
         Vec3 frontLeftTop = end.add(left.x + up.x, left.y + up.y, left.z + up.z);
 
-        BufferBuilder bufferbuilder = tes.getBuilder();
         Matrix4f mat = poseStack.last().pose();
 
-        addVertex(bufferbuilder, mat, backRightBottom, color, alpha, forward);
-        addVertex(bufferbuilder, mat, backLeftBottom, color, alpha, forward);
-        addVertex(bufferbuilder, mat, backLeftTop, color, alpha, forward);
-        addVertex(bufferbuilder, mat, backRightTop, color, alpha, forward);
+        addVertex(builder, mat, backRightBottom, color, alpha, forward);
+        addVertex(builder, mat, backLeftBottom, color, alpha, forward);
+        addVertex(builder, mat, backLeftTop, color, alpha, forward);
+        addVertex(builder, mat, backRightTop, color, alpha, forward);
 
         forward.reverse();
-        addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, forward);
-        addVertex(bufferbuilder, mat, frontRightBottom, color, alpha, forward);
-        addVertex(bufferbuilder, mat, frontRightTop, color, alpha, forward);
-        addVertex(bufferbuilder, mat, frontLeftTop, color, alpha, forward);
+        addVertex(builder, mat, frontLeftBottom, color, alpha, forward);
+        addVertex(builder, mat, frontRightBottom, color, alpha, forward);
+        addVertex(builder, mat, frontRightTop, color, alpha, forward);
+        addVertex(builder, mat, frontLeftTop, color, alpha, forward);
 
-        addVertex(bufferbuilder, mat, frontRightBottom, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, backRightBottom, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, backRightTop, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, frontRightTop, color, alpha, rightNormal);
+        addVertex(builder, mat, frontRightBottom, color, alpha, rightNormal);
+        addVertex(builder, mat, backRightBottom, color, alpha, rightNormal);
+        addVertex(builder, mat, backRightTop, color, alpha, rightNormal);
+        addVertex(builder, mat, frontRightTop, color, alpha, rightNormal);
 
         rightNormal.reverse();
-        addVertex(bufferbuilder, mat, backLeftBottom, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, frontLeftTop, color, alpha, rightNormal);
-        addVertex(bufferbuilder, mat, backLeftTop, color, alpha, rightNormal);
+        addVertex(builder, mat, backLeftBottom, color, alpha, rightNormal);
+        addVertex(builder, mat, frontLeftBottom, color, alpha, rightNormal);
+        addVertex(builder, mat, frontLeftTop, color, alpha, rightNormal);
+        addVertex(builder, mat, backLeftTop, color, alpha, rightNormal);
 
-        addVertex(bufferbuilder, mat, backLeftTop, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, frontLeftTop, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, frontRightTop, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, backRightTop, color, alpha, upNormal);
+        addVertex(builder, mat, backLeftTop, color, alpha, upNormal);
+        addVertex(builder, mat, frontLeftTop, color, alpha, upNormal);
+        addVertex(builder, mat, frontRightTop, color, alpha, upNormal);
+        addVertex(builder, mat, backRightTop, color, alpha, upNormal);
 
         upNormal.reverse();
-        addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, backLeftBottom, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, backRightBottom, color, alpha, upNormal);
-        addVertex(bufferbuilder, mat, frontRightBottom, color, alpha, upNormal);
+        addVertex(builder, mat, frontLeftBottom, color, alpha, upNormal);
+        addVertex(builder, mat, backLeftBottom, color, alpha, upNormal);
+        addVertex(builder, mat, backRightBottom, color, alpha, upNormal);
+        addVertex(builder, mat, frontRightBottom, color, alpha, upNormal);
     }
 
     private static void addVertex(BufferBuilder buff,
                                   Matrix4f mat, Vec3 pos, Vec3i color,
                                   int alpha, Vec3 normal) {
-        buff.vertex(mat, (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(color.getX(), color.getY(), color.getZ(), alpha)
-                .normal((float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+        buff.addVertex(mat, (float) pos.x, (float) pos.y, (float) pos.z)
+                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
+                .setNormal((float) normal.x, (float) normal.y, (float) normal.z);
     }
 
     @Override

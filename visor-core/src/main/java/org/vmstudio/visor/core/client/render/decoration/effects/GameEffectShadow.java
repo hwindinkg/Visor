@@ -2,8 +2,10 @@ package org.vmstudio.visor.core.client.render.decoration.effects;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -91,7 +93,7 @@ public class GameEffectShadow extends VRGameEffect {
 
         // --- Render ---
         RenderHelper.renderFlatQuad(
-                Tesselator.getInstance().getBuilder(),
+                Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL),
                 poseStack.last().pose(),
                 VRMathUtils.ZERO_VECTOR,
                 playerWidth,

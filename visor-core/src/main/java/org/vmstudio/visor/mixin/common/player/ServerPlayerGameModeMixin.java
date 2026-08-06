@@ -9,13 +9,13 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -186,7 +186,8 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         if (vrPlayer == null) return;
 
         double dist = this.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(blockPos));
-        if (dist > ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE) {
+        double interactionRange = this.player.blockInteractionRange();
+        if (dist > interactionRange * interactionRange) {
             this.debugLogging(blockPos, false, j, "too far");
             return;
         } else if (blockPos.getY() >= i) {
@@ -359,7 +360,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return false;
         } else {
             return itemUsed.isEmpty()
-                    || !itemUsed.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, blockPos, false));
+                    || !itemUsed.canBreakBlockInAdventureMode(new BlockInWorld(level, blockPos, false));
         }
     }
 
@@ -389,7 +390,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     ) {
         float f = itemUsed.getDestroySpeed(blockState);
         if (f > 1.0F) {
-            int i = EnchantmentHelper.getBlockEfficiency(player);
+            int i = EnchantmentHelper.getEnchantmentLevel(
+                    player.level().registryAccess()
+                            .registryOrThrow(Registries.ENCHANTMENT)
+                            .getHolderOrThrow(Enchantments.EFFICIENCY),
+                    player
+            );
             if (i > 0 && !itemUsed.isEmpty()) {
                 f += (float) (i * i + 1);
             }
@@ -412,7 +418,11 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         }
 
         if (player.isEyeInFluid(FluidTags.WATER)
-                && !EnchantmentHelper.hasAquaAffinity(player)) {
+                && EnchantmentHelper.getEnchantmentLevel(
+                player.level().registryAccess()
+                        .registryOrThrow(Registries.ENCHANTMENT)
+                        .getHolderOrThrow(Enchantments.AQUA_AFFINITY),
+                player) == 0) {
             f /= 5.0F;
         }
 

@@ -3,7 +3,10 @@ package org.vmstudio.visor.loader.neoforge;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,6 +14,8 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -111,22 +116,23 @@ public class NeoForgeModLoader implements ModLoader {
 
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {
-        Collection<AttributeModifier> attributes = itemStack.getAttributeModifiers(slot)
-                .get(Attributes.ENTITY_INTERACTION_RANGE);
+        Multimap<Holder<Attribute>, AttributeModifier> modifiers = LinkedHashMultimap.create();
+        itemStack.forEachModifier(EquipmentSlotGroup.bySlot(slot), modifiers::put);
+        Collection<AttributeModifier> attributes = modifiers.get(Attributes.ENTITY_INTERACTION_RANGE);
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.ADDITION) {
-                baseRange += entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                baseRange += entry.amount();
             }
         }
         double totalRange = baseRange;
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
-                totalRange += baseRange * entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
+                totalRange += baseRange * entry.amount();
             }
         }
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                totalRange *= 1.0 + entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
+                totalRange *= 1.0 + entry.amount();
             }
         }
         return totalRange;
@@ -229,7 +235,7 @@ public class NeoForgeModLoader implements ModLoader {
 
             @Override
             public void encode(RegistryFriendlyByteBuf buf, ChannelPayload payload) {
-                payload.write(buf);
+                buf.writeBytes(payload.data(), payload.data().readerIndex(), payload.data().readableBytes());
             }
         };
     }
@@ -329,11 +335,6 @@ public class NeoForgeModLoader implements ModLoader {
      */
     private record ChannelPayload(ResourceLocation channelId, FriendlyByteBuf data)
             implements CustomPacketPayload {
-
-        @Override
-        public void write(FriendlyByteBuf buf) {
-            buf.writeBytes(data, data.readerIndex(), data.readableBytes());
-        }
 
         @Override
         public Type<? extends CustomPacketPayload> type() {

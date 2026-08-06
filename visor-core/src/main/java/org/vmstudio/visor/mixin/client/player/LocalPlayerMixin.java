@@ -458,9 +458,9 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 blockforNoise.above()
         );
 
-        SoundType soundType = block.getSoundType(blockNoise);
+        SoundType soundType = blockNoise.getSoundType();
         if (blockAboveNoise.getBlock() == Blocks.SNOW) {
-            soundType = Blocks.SNOW.getSoundType(blockAboveNoise);
+            soundType = blockAboveNoise.getSoundType();
         }
 
         SoundEvent soundevent = soundType.getStepSound();

@@ -61,7 +61,7 @@ public class PlayerRenderMixins {
                 if(vrPlayer == null){
                     return;
                 }
-                String modelName = player.getModelName();
+                String modelName = player.getSkin().model().id();
                 var model = vrPlayer.getBodyType().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );

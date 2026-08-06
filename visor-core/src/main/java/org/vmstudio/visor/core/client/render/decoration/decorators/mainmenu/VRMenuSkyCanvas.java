@@ -277,18 +277,18 @@ public final class VRMenuSkyCanvas implements VREventListener {
 
             float hitDistance = aim.distance;
             float seconds = (float) ((Util.getMillis() % 100_000L) / 1000.0);
-            builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            BufferBuilder markerBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             float ringRadius = hitDistance * ERASE_RING_SIN;
             float spinAngle = seconds * ERASE_RING_SPIN;
             for (int i = 0; i < ERASE_RING_DOTS; i++) {
                 float dotAngle = spinAngle + i * (float) (Math.PI * 2.0 / ERASE_RING_DOTS);
                 float dotX = ringRadius * (float) Math.cos(dotAngle);
                 float dotY = ringRadius * (float) Math.sin(dotAngle);
-                markerQuad(builder, poseMatrix, dotX, dotY, -hitDistance, 0.5f, colorInt, 150);
+                markerQuad(markerBuilder, poseMatrix, dotX, dotY, -hitDistance, 0.5f, colorInt, 150);
             }
-            markerQuad(builder, poseMatrix, 0, 0, -hitDistance, 0.35f, colorInt, 120);
+            markerQuad(markerBuilder, poseMatrix, 0, 0, -hitDistance, 0.35f, colorInt, 120);
 
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            BufferUploader.drawWithShader(markerBuilder.buildOrThrow());
         }
 
         // --- restore GL ---
