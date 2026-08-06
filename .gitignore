@@ -38,6 +38,14 @@ bin/
 ### VS Code ###
 .vscode/
 
+### scratch build logs ###
+/compile_out*.txt
+/err_*.txt
+/errors*.txt
+/deps.log
+/phase6_build.log
+/.architectury-transformer/
+
 ### Mac OS ###
 .DS_Store
 /.idea/
