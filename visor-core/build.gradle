@@ -12,11 +12,6 @@ dependencies {
 
     compileOnly(project(path: ':visor-core:stubs', configuration: 'namedElements'))
 
-    // @Environment annotation and mixin extras
-    modImplementation(libs.fabric.loader)
-
-    modApi(libs.architectury.lib)
-
     // ---- LOCAL DEPENDENCY
     modApi name: 'atumvr-core-1.14.0beta-snapshot#14'
     // ----

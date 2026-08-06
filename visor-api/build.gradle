@@ -6,9 +6,6 @@ loom{
     accessWidenerPath = file("src/main/resources/visor.accesswidener")
 }
 dependencies {
-    // @Environment annotation and mixin extras
-    compileOnly(libs.fabric.loader)
-
     // ---- LOCAL DEPENDENCY
     modApi name: 'atumvr-api-1.14.0beta-snapshot#14'
     modApi name: 'atumvr-core-1.14.0beta-snapshot#14'
