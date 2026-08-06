@@ -1,12 +1,34 @@
-package org.vmstudio.visor.loader.forge;
+package org.vmstudio.visor.loader.neoforge;
 
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforgespi.language.ModFileScanData;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
@@ -15,27 +37,6 @@ import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.VisorChannel;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.language.ModFileScanData;
-import net.minecraftforge.network.NetworkDirection;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -43,13 +44,23 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-public class ForgeModLoader implements ModLoader {
+public class NeoForgeModLoader implements ModLoader {
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger("visor-neoforge");
+
     private File configFolder = FMLPaths.CONFIGDIR.get().toFile();
 
     private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
             = new EnumMap<>(RenderPipelineStage.class);
 
     private boolean levelStageListenerRegistered = false;
+
+    /**
+     * Channels registered before {@link RegisterPayloadHandlersEvent}
+     * are buffered here and registered in {@link #onRegisterPayloads}.
+     */
+    private final List<VisorChannel> pendingChannels = new CopyOnWriteArrayList<>();
+    private volatile boolean payloadsRegistered = false;
 
 
     @Override
@@ -85,7 +96,7 @@ public class ForgeModLoader implements ModLoader {
                 .add(callback);
 
         if (!levelStageListenerRegistered) {
-            MinecraftForge.EVENT_BUS.addListener(this::onRenderLevelStage);
+            NeoForge.EVENT_BUS.addListener(this::onRenderLevelStage);
             levelStageListenerRegistered = true;
         }
     }
@@ -101,7 +112,7 @@ public class ForgeModLoader implements ModLoader {
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {
         Collection<AttributeModifier> attributes = itemStack.getAttributeModifiers(slot)
-                .get(ForgeMod.ENTITY_REACH.get());
+                .get(Attributes.ENTITY_INTERACTION_RANGE);
         for (AttributeModifier entry : attributes) {
             if (entry.getOperation() == AttributeModifier.Operation.ADDITION) {
                 baseRange += entry.getAmount();
@@ -126,12 +137,12 @@ public class ForgeModLoader implements ModLoader {
                                                        @NotNull String modId,
                                                        @NotNull String packagePath) {
         List<Class<?>> result = new ArrayList<>();
-        IModFileInfo info = ModList.get().getModFileById(modId);
-        if (!(info instanceof ModFileInfo modFileInfo)) {
+        ModFileInfo info = FMLLoader.getLoadingModList().getModFileById(modId);
+        if (info == null) {
             return result;
         }
 
-        ModFileScanData scanData = modFileInfo.getFile().getScanResult();
+        ModFileScanData scanData = info.getFile().getScanResult();
         String annotationName = annotation.getName();
 
         for (var annotationData : scanData.getAnnotations()) {
@@ -158,64 +169,119 @@ public class ForgeModLoader implements ModLoader {
 
     }
 
+    // ----- NETWORK -----
+
+    /**
+     * Fired on the mod bus by {@link VisorMod} (constructor phase), BEFORE
+     * {@code ModLoader.registerNetworkChannel} calls arrive (they happen on
+     * {@code FMLLoadCompleteEvent}). Channels buffered in
+     * {@link #pendingChannels} are registered here, one payload type per channel.
+     */
+    public void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("visor");
+        for (VisorChannel channel : pendingChannels) {
+            registerChannel(channel, registrar);
+        }
+        pendingChannels.clear();
+        payloadsRegistered = true;
+    }
+
     @Override
     public void registerNetworkChannel(@NotNull VisorChannel channel) {
-        String version = String.valueOf(channel.getNetworkVersion());
-        EventNetworkChannel eventChannel = NetworkRegistry.ChannelBuilder
-                .named(channel.getChannelId())
-                .clientAcceptedVersions(s -> true)
-                .serverAcceptedVersions(s -> true)
-                .networkProtocolVersion(() -> version)
-                .eventNetworkChannel();
+        if (!payloadsRegistered) {
+            // Before RegisterPayloadHandlersEvent: buffer, will be registered in onRegisterPayloads.
+            pendingChannels.add(channel);
+        } else {
+            // After the event the NeoForge NetworkRegistry is frozen: the payload
+            // can no longer be registered, sending will still work for the channel.
+            LOGGER.warn(
+                    "VisorChannel '{}' registered after RegisterPayloadHandlersEvent: "
+                            + "payload handlers will NOT be available for it.",
+                    channel.getChannelId());
+        }
+    }
 
-        eventChannel.addListener(event -> {
-            FriendlyByteBuf payload = event.getPayload();
-            if (payload == null) return;
+    private void registerChannel(VisorChannel channel, PayloadRegistrar registrar) {
+        ResourceLocation id = channel.getChannelId();
+        PayloadRegistrar channelRegistrar = registrar
+                .versioned(String.valueOf(channel.getNetworkVersion()));
+        StreamCodec<RegistryFriendlyByteBuf, ChannelPayload> codec = channelCodec(id);
 
-            FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
-            copy.writeBytes(payload.copy());
+        if (channel.hasPacketsToServer()) {
+            channelRegistrar.playToServer(new CustomPacketPayload.Type<>(id), codec,
+                    (payload, context) -> handleToServer(payload, channel, context));
+        }
+        if (channel.hasPacketsToClient()) {
+            channelRegistrar.playToClient(new CustomPacketPayload.Type<>(id), codec,
+                    (payload, context) -> handleToClient(payload, channel, context));
+        }
+    }
 
-            var context = event.getSource().get();
-            if (context.getDirection().getOriginationSide().isClient()) {
-                if (channel.hasPacketsToServer() && context.getSender() != null) {
-                    var sender = context.getSender();
-                    context.enqueueWork(() -> channel.handleToServer(copy, sender,
-                            p -> context.getNetworkManager().send(
-                                    ModLoader.get().createPacketToClient(channel.getChannelId(), p)
-                            )));
-                }
-            } else {
-                if (channel.hasPacketsToClient()) {
-                    context.enqueueWork(() -> channel.handleToClient(copy));
-                }
+    private static StreamCodec<RegistryFriendlyByteBuf, ChannelPayload> channelCodec(ResourceLocation id) {
+        return new StreamCodec<>() {
+            @Override
+            public ChannelPayload decode(RegistryFriendlyByteBuf buf) {
+                // Hand a copy to the channel: the existing VisorPayload serialization
+                // (read byte-id + payload) is performed by VisorChannel.handleToServer/ToClient.
+                FriendlyByteBuf copy = new FriendlyByteBuf(buf.copy());
+                return new ChannelPayload(id, copy);
             }
-            context.setPacketHandled(true);
-        });
+
+            @Override
+            public void encode(RegistryFriendlyByteBuf buf, ChannelPayload payload) {
+                payload.write(buf);
+            }
+        };
+    }
+
+    private void handleToServer(ChannelPayload payload, VisorChannel channel, IPayloadContext context) {
+        var player = context.player();
+        if (!(player instanceof net.minecraft.server.level.ServerPlayer sender)) {
+            return;
+        }
+        context.enqueueWork(() -> channel.handleToServer(payload.data(), sender,
+                p -> PacketDistributor.sendToPlayer(sender, makePayload(channel.getChannelId(), p))));
+    }
+
+    private void handleToClient(ChannelPayload payload, VisorChannel channel, IPayloadContext context) {
+        context.enqueueWork(() -> channel.handleToClient(payload.data()));
     }
 
     @Override
     public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
                                                    @NotNull VisorPayloadToClient payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return NetworkDirection.PLAY_TO_CLIENT.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
+        return new ChannelPayload(channelId, writePayload(payload)).toVanillaClientbound();
     }
 
     @Override
     public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
                                                    @NotNull VisorPayloadToServer payload) {
+        return new ChannelPayload(channelId, writePayload(payload)).toVanillaServerbound();
+    }
+
+    private static FriendlyByteBuf writePayload(VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return NetworkDirection.PLAY_TO_SERVER.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
+        return buffer;
+    }
+
+    private static FriendlyByteBuf writePayload(VisorPayloadToServer payload) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        payload.write(buffer);
+        return buffer;
+    }
+
+    private static ChannelPayload makePayload(ResourceLocation channelId, VisorPayloadToClient payload) {
+        return new ChannelPayload(channelId, writePayload(payload));
     }
 
     @Override
     public boolean renderWaterOverlay(Player player, PoseStack mat) {
-        return ForgeHooksClient.renderWaterOverlay(player, mat);
+        return ClientHooks.renderWaterOverlay(player, mat);
     }
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
-        return ForgeHooksClient.renderFireOverlay(player, mat);
+        return ClientHooks.renderFireOverlay(player, mat);
     }
 
     @Override
@@ -234,7 +300,7 @@ public class ForgeModLoader implements ModLoader {
         if (callbacks == null || callbacks.isEmpty()) return;
 
         PoseStack poseStack = event.getPoseStack();
-        float partialTicks = event.getPartialTick();
+        float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(false);
 
         for (RenderPipelineCallback callback : callbacks) {
             callback.render(poseStack, partialTicks);
@@ -253,5 +319,25 @@ public class ForgeModLoader implements ModLoader {
             return RenderPipelineStage.AFTER_WORLD;
         }
         return null;
+    }
+
+    /**
+     * Payload wrapping an existing VisorChannel. One type per channel
+     * ({@code id = channel.getChannelId()}); the {@link StreamCodec} delegates
+     * the byte-level serialization to {@code VisorChannel.handleToServer/ToClient}
+     * (existing {@code VisorPayload.write/read} contract is untouched).
+     */
+    private record ChannelPayload(ResourceLocation channelId, FriendlyByteBuf data)
+            implements CustomPacketPayload {
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            buf.writeBytes(data, data.readerIndex(), data.readableBytes());
+        }
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return new Type<>(channelId);
+        }
     }
 }
