@@ -49,3 +49,7 @@ bin/
 ### Mac OS ###
 .DS_Store
 /.idea/
+
+### Local overrides ###
+.env*
+*.local

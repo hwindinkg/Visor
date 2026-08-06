@@ -53,6 +53,13 @@ public class NeoForgeModLoader implements ModLoader {
     private static final org.slf4j.Logger LOGGER =
             org.slf4j.LoggerFactory.getLogger("visor-neoforge");
 
+    /**
+     * Cap for inbound Visor payloads. Vanilla's packet limit is ~2 MiB; Visor
+     * payloads are fixed-size (bow tension: 4 bytes, tracers &le; 14 items), so
+     * anything above 512 KiB is a malformed/abusive packet.
+     */
+    private static final int MAX_PAYLOAD_BYTES = 512 * 1024;
+
     private File configFolder = FMLPaths.CONFIGDIR.get().toFile();
 
     private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
@@ -236,6 +243,14 @@ public class NeoForgeModLoader implements ModLoader {
         return new StreamCodec<>() {
             @Override
             public ChannelPayload decode(RegistryFriendlyByteBuf buf) {
+                // Reject oversized payloads before copying: a truncated/malicious
+                // packet would otherwise copy the whole buffer and blow up later
+                // in the handler with an IndexOutOfBoundsException (disconnect flood).
+                if (buf.readableBytes() > MAX_PAYLOAD_BYTES) {
+                    throw new IllegalArgumentException(
+                            "Visor channel payload too large: " + buf.readableBytes()
+                                    + " bytes (max " + MAX_PAYLOAD_BYTES + ")");
+                }
                 // Hand a copy to the channel: the existing VisorPayload serialization
                 // (read byte-id + payload) is performed by VisorChannel.handleToServer/ToClient.
                 FriendlyByteBuf copy = new FriendlyByteBuf(buf.copy());
@@ -245,6 +260,9 @@ public class NeoForgeModLoader implements ModLoader {
             @Override
             public void encode(RegistryFriendlyByteBuf buf, ChannelPayload payload) {
                 buf.writeBytes(payload.data(), payload.data().readerIndex(), payload.data().readableBytes());
+                // The payload buffer is only consumed by encode(); nothing reads it
+                // afterwards, so release it here (hot path — called every frame).
+                payload.data().release();
             }
         };
     }
@@ -255,27 +273,49 @@ public class NeoForgeModLoader implements ModLoader {
             payload.data().release();
             return;
         }
-        context.enqueueWork(() -> {
-            try {
-                channel.handleToServer(payload.data(), sender,
-                        p -> PacketDistributor.sendToPlayer(sender, makePayload(channel.getChannelId(), p)));
-            } finally {
-                // decode() hands the codec a copy of the inbound buffer; release it
-                // once the handler consumed it.
-                payload.data().release();
-            }
-        });
+        try {
+            context.enqueueWork(() -> {
+                try {
+                    channel.handleToServer(payload.data(), sender,
+                            p -> PacketDistributor.sendToPlayer(sender, makePayload(channel.getChannelId(), p)));
+                } catch (RuntimeException e) {
+                    // A malformed payload must not disconnect the player: log and drop.
+                    LOGGER.warn("Failed to handle Visor payload '{}' from {}",
+                            channel.getChannelId(), sender.getGameProfile().getName(), e);
+                } finally {
+                    // decode() hands the codec a copy of the inbound buffer; release it
+                    // once the handler consumed it.
+                    payload.data().release();
+                }
+            });
+        } catch (RuntimeException e) {
+            // enqueueWork failed synchronously — the lambda (and its finally) never
+            // ran, so release the copy here before propagating.
+            payload.data().release();
+            throw e;
+        }
     }
 
     private void handleToClient(ChannelPayload payload, VisorChannel channel, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            try {
-                channel.handleToClient(payload.data());
-            } finally {
-                // see handleToServer
-                payload.data().release();
-            }
-        });
+        try {
+            context.enqueueWork(() -> {
+                try {
+                    channel.handleToClient(payload.data());
+                } catch (RuntimeException e) {
+                    // A malformed payload must not disconnect the player: log and drop.
+                    LOGGER.warn("Failed to handle Visor payload '{}'",
+                            channel.getChannelId(), e);
+                } finally {
+                    // see handleToServer
+                    payload.data().release();
+                }
+            });
+        } catch (RuntimeException e) {
+            // enqueueWork failed synchronously — the lambda (and its finally) never
+            // ran, so release the copy here before propagating.
+            payload.data().release();
+            throw e;
+        }
     }
 
     @Override
