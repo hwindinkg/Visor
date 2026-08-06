@@ -20,7 +20,6 @@ import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import org.jetbrains.annotations.NotNull;
@@ -212,7 +211,6 @@ public class VRRenderState {
                 || MC.gameRenderer == null
                 || MC.screen instanceof ReceivingLevelScreen
                 || MC.screen instanceof ProgressScreen
-                || MC.screen instanceof GenericDirtMessageScreen
                 || MC.getOverlay() != null;
     }
 

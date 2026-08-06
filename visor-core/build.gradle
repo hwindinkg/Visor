@@ -12,6 +12,13 @@ dependencies {
 
     compileOnly(project(path: ':visor-core:stubs', configuration: 'namedElements'))
 
+    // mixin annotations (was transitive via fabric-loader on 1.20.1; explicit now).
+    // No mixin annotation processor: NeoForge 1.21 mixins use official names directly (no refmap).
+    compileOnly "net.fabricmc:sponge-mixin:0.15.2+mixin.0.8.7"
+    compileOnly "io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"
+    // fabric-mixin-compile-extensions (auto-added by loom) bundles the mixin AP but not asm-util
+    annotationProcessor "org.ow2.asm:asm-util:9.4"
+
     // ---- LOCAL DEPENDENCY
     modApi name: 'atumvr-core-1.14.0beta-snapshot#14'
     // ----
@@ -20,6 +27,5 @@ dependencies {
     //Other mods
     modCompileOnly(libs.mod.sodium)
     modCompileOnly(libs.mod.iris) { transitive = false }
-
 
 }

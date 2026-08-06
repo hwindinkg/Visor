@@ -3,6 +3,7 @@ package org.vmstudio.visor.compatibility.iris.mixin.dh;
 import net.irisshaders.iris.compat.dh.DHCompat;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +22,7 @@ public class IrisDhCompatVRMixin {
             return;
         }
 
-        Matrix4f vrProjection = CapturedRenderingState.INSTANCE.getGbufferProjection();
+        Matrix4fc vrProjection = CapturedRenderingState.INSTANCE.getGbufferProjection();
         Matrix4f dhProjection = cir.getReturnValue();
         if (dhProjection == null) {
             return;
