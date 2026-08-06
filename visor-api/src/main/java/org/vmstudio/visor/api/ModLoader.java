@@ -169,19 +169,11 @@ public interface ModLoader {
                 return api;
             }
 
-            //FORGE
+            //NEOFORGE
             try {
-                Class<?> clazz = Class.forName("org.vmstudio.visor.loader.forge.ForgeModLoader");
+                Class<?> clazz = Class.forName("org.vmstudio.visor.loader.neoforge.NeoForgeModLoader");
                 api = (ModLoader) clazz.getConstructor().newInstance();
             } catch (Exception ignored) {
-            }
-            //FABRIC
-            if(api == null){
-                try {
-                    Class<?> clazz = Class.forName("org.vmstudio.visor.loader.fabric.FabricModLoader");
-                    api = (ModLoader) clazz.getConstructor().newInstance();
-                } catch (Exception ignored) {
-                }
             }
 
             if(api == null){

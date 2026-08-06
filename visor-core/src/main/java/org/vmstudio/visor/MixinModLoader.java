@@ -50,19 +50,11 @@ public interface MixinModLoader {
                 return api;
             }
 
-            //FORGE
+            //NEOFORGE
             try {
-                Class<?> clazz = Class.forName("org.vmstudio.visor.loader.forge.ForgeMixinModLoader");
+                Class<?> clazz = Class.forName("org.vmstudio.visor.loader.neoforge.NeoMixinModLoader");
                 api = (MixinModLoader) clazz.getConstructor().newInstance();
             } catch (Exception ignored) {
-            }
-            //FABRIC
-            if(api == null){
-                try {
-                    Class<?> clazz = Class.forName("org.vmstudio.visor.loader.fabric.FabricMixinModLoader");
-                    api = (MixinModLoader) clazz.getConstructor().newInstance();
-                } catch (Exception ignored) {
-                }
             }
 
             if(api == null){
