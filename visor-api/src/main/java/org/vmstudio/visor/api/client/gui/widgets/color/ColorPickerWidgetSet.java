@@ -129,7 +129,7 @@ public class ColorPickerWidgetSet implements WidgetSet {
         );
         hexField.setMaxLength(7);
         hexField.setValue(getColor().asHex(false));
-        hexField.moveCursorToStart();
+        hexField.moveCursorToStart(false);
         hexField.setResponder(this::onHexTyped);
 
         presetSwatches.clear();
@@ -157,7 +157,7 @@ public class ColorPickerWidgetSet implements WidgetSet {
     @Override
     public void onTick() {
         if (hexField != null) {
-            hexField.tick();
+            // hexField.tick() removed in 1.21.1 (EditBox.tick no longer exists)
         }
     }
 

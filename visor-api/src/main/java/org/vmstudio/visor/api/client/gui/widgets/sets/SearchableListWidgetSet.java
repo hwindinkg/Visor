@@ -70,7 +70,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
     @Override
     public void onTick() {
         if(searchBox != null) {
-            searchBox.tick();
+            // EditBox.tick() was removed in 1.21.1 (caret blink is handled inside render)
         }
         if(filterButton != null
                 && filterWidgetSet != null

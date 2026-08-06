@@ -123,7 +123,7 @@ public class ValueEditorFloat implements WidgetSet{
         int maxLen = intPartWidth + 1 /* '.' */ + 8 /* decimals */ + (minValue < 0 ? 1 : 0);
         editBox.setMaxLength(Math.max(maxLen, 6));
 
-        editBox.moveCursorToStart();
+        editBox.moveCursorToStart(false);
 
 
         leftArrow = new ValueDragWidget(leftArrowInfo);
@@ -150,7 +150,7 @@ public class ValueEditorFloat implements WidgetSet{
 
     @Override
     public void onTick() {
-        editBox.tick();
+        // editBox.tick() removed in 1.21.1 (EditBox.tick no longer exists)
     }
 
     private static String formatFloat(float v) {

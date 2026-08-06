@@ -89,20 +89,10 @@ public class ButtonImaged extends AbstractButton {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (tooltipOverride == null && getTooltip() != widgetInfo.getTooltip()) {
             super.setTooltip(widgetInfo.getTooltip());
         }
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    protected @NotNull ClientTooltipPositioner createTooltipPositioner() {
-        return ClampedTooltipPositioner.INSTANCE;
-    }
-
-    @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 
         GuiTexture texture;
         if(!active){
@@ -136,7 +126,7 @@ public class ButtonImaged extends AbstractButton {
             texture.blit(
                     guiGraphics,
                     this.getX(), this.getY(),
-                    this.width, this.height
+                    this.getWidth(), this.getHeight()
             );
         }
 

@@ -16,7 +16,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 public interface VisorAddon {
 
     GuiTexture MISSING_ICON = new GuiTexture(
-            new ResourceLocation(VisorAPI.MOD_ID, "textures/gui/overlays/missing_icon.png")
+            ResourceLocation.fromNamespaceAndPath(VisorAPI.MOD_ID, "textures/gui/overlays/missing_icon.png")
     );
 
     /**

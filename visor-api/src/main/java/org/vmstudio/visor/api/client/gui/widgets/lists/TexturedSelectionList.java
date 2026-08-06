@@ -82,7 +82,6 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
                 widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
                 widgetInfo.getY(),
-                widgetInfo.getY() + widgetInfo.getHeight(),
                 widgetInfo.getEntryHeight()
         );
 
@@ -95,10 +94,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
 
         this.onSelected = onSelected;
 
-        this.setLeftPos(widgetInfo.getX());
-        this.setRenderTopAndBottom(false);
-        this.setRenderBackground(false);
-        this.setRenderSelection(false);
+        this.setX(widgetInfo.getX());
 
         resetEntries(rawEntries);
     }
@@ -109,7 +105,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
      * Total width available for columns (excludes scrollbar + padding).
      */
     private int getColumnsAreaWidth() {
-        return this.width - scrollBarWidth - paddingLeft * 2;
+        return this.getWidth() - scrollBarWidth - paddingLeft * 2;
     }
 
     /**
@@ -159,7 +155,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //Rendering
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Determine hovered entry across columns
         this.hoveredEntry = null;
         if (this.isMouseOver(mouseX, mouseY)) {
@@ -183,14 +179,14 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         }
 
         this.enableScissor(guiGraphics);
-        this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderListItems(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.disableScissor();
 
         int scrollX = this.getScrollbarPosition();
         int maxScroll = this.getMaxScroll();
         if (maxScroll > 0) {
-            int trackTop = this.y0 + this.paddingTop;
-            int trackBottom = this.y1 - this.paddingTop;
+            int trackTop = this.getY() + this.paddingTop;
+            int trackBottom = this.getY() + this.getHeight() - this.paddingTop;
             int viewH = trackBottom - trackTop;
 
             int thumbH = (int) (viewH * (float) viewH / ((float) viewH + maxScroll));
@@ -213,7 +209,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     }
 
     @Override
-    protected void renderList(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderListItems(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = this.itemHeight - paddingTop;
@@ -222,7 +218,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         for (int m = 0; m < l; ++m) {
             int n = this.getRowTop(m);
             int o = this.getRowBottom(m);
-            if (o >= this.y0 && n <= this.y1) {
+            if (o >= this.getY() && n <= this.getY() + this.getHeight()) {
                 this.renderItem(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
             }
         }
@@ -421,22 +417,22 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
 
     @Override
     protected int getScrollbarPosition() {
-        return this.x0 + this.width - (scrollBarWidth + 2);
+        return this.getX() + this.getWidth() - (scrollBarWidth + 2);
     }
 
     @Override
     public int getRowWidth() {
-        return this.width - scrollBarWidth - paddingLeft * 2;
+        return this.getWidth() - scrollBarWidth - paddingLeft * 2;
     }
 
     @Override
     public int getRowLeft() {
-        return this.x0 + paddingLeft;
+        return this.getX() + paddingLeft;
     }
 
     @Override
     protected int getRowTop(int index) {
-        return this.y0 + paddingTop - (int) this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
+        return this.getY() + paddingTop - (int) this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
     }
 
     @Override
@@ -445,7 +441,21 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     }
 
     @Override
-    public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+    public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+    }
+
+    // Replaces the removed setRenderBackground(false) / setRenderSelection(false)
+    // / setRenderTopAndBottom(false): keep the list rendering fully custom.
+    @Override
+    protected void renderListBackground(@NotNull GuiGraphics guiGraphics) {
+    }
+
+    @Override
+    protected void renderListSeparators(@NotNull GuiGraphics guiGraphics) {
+    }
+
+    @Override
+    protected void renderSelection(@NotNull GuiGraphics guiGraphics, int top, int height, int outerColor, int innerColor, int padding) {
     }
 
     // ══════════════════════════════════════════════════════════════════

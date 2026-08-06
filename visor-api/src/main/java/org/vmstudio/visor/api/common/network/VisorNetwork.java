@@ -15,7 +15,7 @@ public class VisorNetwork {
         throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
-    public static final ResourceLocation CORE_CHANNEL_ID = new ResourceLocation("visor:channel");
+    public static final ResourceLocation CORE_CHANNEL_ID = ResourceLocation.parse("visor:channel");
 
     public static final int CORE_NETWORK_VERSION = 5; // 5: since Visor 0.5.0
 

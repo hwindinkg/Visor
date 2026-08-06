@@ -95,7 +95,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
     @Override
     public void onTick() {
         if(searchBox != null){
-            searchBox.tick();
+            // EditBox.tick() was removed in 1.21.1 (caret blink is handled inside render)
         }
     }
 

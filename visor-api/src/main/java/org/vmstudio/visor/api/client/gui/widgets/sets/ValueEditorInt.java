@@ -120,7 +120,7 @@ public class ValueEditorInt implements WidgetSet{
         ) + (minValue < 0 ? 1 : 0);
         editBox.setMaxLength(maxDigits);
 
-        editBox.moveCursorToStart();
+        editBox.moveCursorToStart(false);
 
 
         leftArrow = new ValueDragWidget(leftArrowInfo);
@@ -147,7 +147,7 @@ public class ValueEditorInt implements WidgetSet{
 
     @Override
     public void onTick() {
-        editBox.tick();
+        // editBox.tick() removed in 1.21.1 (EditBox.tick no longer exists)
     }
 
 

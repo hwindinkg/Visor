@@ -6,35 +6,35 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import net.minecraft.resources.ResourceLocation;
 
 public interface OptionTextures {
-    ResourceLocation RESOURCE_2 = new ResourceLocation(
+    ResourceLocation RESOURCE_2 = ResourceLocation.parse(
             "visor:textures/gui/overlays/settings/general_2.png"
     );
     int TEX_WIDTH_2 = 119;
     int TEX_HEIGHT_2 = 153;
 
     GuiTexture BACKGROUND_256x256 = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/overlays/settings/bg_general_256x256.png"
             ),
             0, 0,
             256, 256
     );
     GuiTexture BACKGROUND_256x128 = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/overlays/settings/bg_general_256x128.png"
             ),
             0, 0,
             256, 128
     );
     GuiTexture BACKGROUND_175x256 = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/overlays/settings/bg_general_175x256.png"
             ),
             0, 0,
             175, 256
     );
     GuiTexture BACKGROUND_128x256 = new GuiTexture(
-            new ResourceLocation(
+            ResourceLocation.parse(
                     "visor:textures/gui/overlays/settings/bg_general_128x256.png"
             ),
             0, 0,

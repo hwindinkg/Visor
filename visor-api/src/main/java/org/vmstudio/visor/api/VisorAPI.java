@@ -43,7 +43,7 @@ public interface VisorAPI {
 
     /**Visor mod icon**/
     GuiTexture NOD_ICON = new GuiTexture(
-            new ResourceLocation(VisorAPI.MOD_ID, "icon.png")
+            ResourceLocation.fromNamespaceAndPath(VisorAPI.MOD_ID, "icon.png")
     );
 
     /**

@@ -95,9 +95,7 @@ public class WidgetsList extends DynamicWidgetSet {
     @Override
     public void onTick() {
         for (var widget : widgets) {
-            if (widget instanceof EditBox editBox) {
-                editBox.tick();
-            }
+            // EditBox.tick() was removed in 1.21.1 (caret blink is handled inside render)
         }
     }
 
@@ -209,7 +207,7 @@ public class WidgetsList extends DynamicWidgetSet {
     // ---------- mouse scroll integration ----------
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (scrollbar.mouseScrolled(mouseX, mouseY, delta)) return true;
+        if (scrollbar.mouseScrolled(mouseX, mouseY, 0.0, delta)) return true;
 
         // if over viewport, scroll content
         if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height) {
@@ -322,13 +320,13 @@ public class WidgetsList extends DynamicWidgetSet {
         }
 
         @Override
-        public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double scrollDelta) {
             if (!this.visible) return false;
             if (mouseX >= this.getX() && mouseX < this.getX() + this.getWidth()
-                    && mouseY >= this.getY() && mouseY < this.getY() + this.height) {
+                    && mouseY >= this.getY() && mouseY < this.getY() + this.getHeight()) {
                 if (maxScroll > 0) {
                     double step = (entryHeight + rowGap) * 0.75;
-                    applyScroll(scrollAmount - delta * step);
+                    applyScroll(scrollAmount - scrollDelta * step);
                     return true;
                 }
             }

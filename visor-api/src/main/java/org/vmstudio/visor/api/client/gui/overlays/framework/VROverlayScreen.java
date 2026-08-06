@@ -331,7 +331,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics guiGraphics) {
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         //empty
     }
 
@@ -634,8 +634,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return super.mouseReleased(mouseX, mouseY, buttonType);
     }
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        return super.mouseScrolled(mouseX, mouseY, scrollDelta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double scrollDelta) {
+        return super.mouseScrolled(mouseX, mouseY, horizontalDelta, scrollDelta);
     }
 
     @Override
