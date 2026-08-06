@@ -1,64 +1,89 @@
-package org.vmstudio.visor.loader.forge.mixin;
+package org.vmstudio.visor.loader.neoforge.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ForgeGui.class)
-public abstract class ForgeIngameGuiVRMixin {
+/**
+ * NeoForge 21.1 removed ForgeGui / NamedGuiOverlay / VanillaGuiOverlay entirely
+ * (option (a) of the migration plan is not available). The vanilla {@link Gui}
+ * now renders its overlays through private per-element methods; this mixin
+ * cancels them with the same semantics as the old ForgeGui.pre() mixin:
+ * <ul>
+ *   <li>SLEEP_FADE - always hidden while Visor is active</li>
+ *   <li>CHAT_PANEL - hidden while Visor is active and no ChatScreen is open</li>
+ *   <li>PLAYER_HEALTH / ARMOR / FOOD / AIR / MOUNT_HEALTH / JUMP_BAR /
+ *       EXPERIENCE_BAR - hidden while a screen is open or GUI_DISABLE_HUD
+ *       is enabled (boss bar is handled by NeoForgeBossOverlayVRMixin)</li>
+ * </ul>
+ */
+@Mixin(Gui.class)
+public abstract class NeoForgeIngameGuiVRMixin {
 
-
-
-    @Inject(method = "pre", at = @At("HEAD"), remap = false, cancellable = true)
-    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics,
-                               CallbackInfoReturnable<Boolean> info) {
-
+    @Inject(method = "renderSleepOverlay", at = @At("HEAD"), cancellable = true)
+    private void noSleepFade(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (VisorState.get().isNotActive()) {
             return;
         }
-        Minecraft mc = Minecraft.getInstance();
+        ci.cancel();
+    }
 
-        if (overlay == VanillaGuiOverlay.SLEEP_FADE.type()) {
-            info.setReturnValue(true);
+    @Inject(method = "renderChat", at = @At("HEAD"), cancellable = true)
+    private void noChatPanel(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
-
-        if (overlay == VanillaGuiOverlay.CHAT_PANEL.type()) {
-            if (!(mc.screen instanceof ChatScreen)) {
-                info.setReturnValue(true);
-            }
-            return;
+        if (!(Minecraft.getInstance().screen instanceof ChatScreen)) {
+            ci.cancel();
         }
+    }
 
-        if (visor$isForgeHud(overlay)
-                && (mc.screen != null
-                || ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_DISABLE_HUD))) {
-            info.setReturnValue(true);
+    @Inject(method = "maybeRenderPlayerHealth", at = @At("HEAD"), cancellable = true)
+    private void noPlayerHealth(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (visor$shouldHideHud()) {
+            ci.cancel();
         }
+    }
 
+    @Inject(method = "maybeRenderVehicleHealth", at = @At("HEAD"), cancellable = true)
+    private void noVehicleHealth(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (visor$shouldHideHud()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "maybeRenderJumpMeter", at = @At("HEAD"), cancellable = true)
+    private void noJumpBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (visor$shouldHideHud()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "maybeRenderExperienceBar", at = @At("HEAD"), cancellable = true)
+    private void noExperienceBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (visor$shouldHideHud()) {
+            ci.cancel();
+        }
     }
 
     @Unique
-    private static boolean visor$isForgeHud(NamedGuiOverlay overlay) {
-        return overlay == VanillaGuiOverlay.PLAYER_HEALTH.type()
-                || overlay == VanillaGuiOverlay.ARMOR_LEVEL.type()
-                || overlay == VanillaGuiOverlay.FOOD_LEVEL.type()
-                || overlay == VanillaGuiOverlay.AIR_LEVEL.type()
-                || overlay == VanillaGuiOverlay.MOUNT_HEALTH.type()
-                || overlay == VanillaGuiOverlay.JUMP_BAR.type()
-                || overlay == VanillaGuiOverlay.EXPERIENCE_BAR.type()
-                || overlay == VanillaGuiOverlay.BOSS_EVENT_PROGRESS.type();
+    private static boolean visor$shouldHideHud() {
+        if (VisorState.get().isNotActive()) {
+            return false;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        return mc.screen != null
+                || ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_DISABLE_HUD);
     }
 
 }
