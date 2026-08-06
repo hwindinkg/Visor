@@ -32,6 +32,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.Util;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -44,7 +45,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import org.vmstudio.visor.core.client.VisorState;
 
@@ -228,15 +228,15 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * @param ci          s
      * @param nanoTime    s
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
-    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick")
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci) {
         if (ClientContext.visor != null) {
             ClientContext.visor
                     .renderVR(
                             new RenderContext(
                                     profiler,
                                     renderLevel,
-                                    nanoTime,
+                                    Util.getNanos(),
                                     visor$getPartialTicks()
                             )
                     );
