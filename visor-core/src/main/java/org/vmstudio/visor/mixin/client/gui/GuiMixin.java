@@ -5,6 +5,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.extensions.client.GuiExtension;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,6 +13,8 @@ import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +36,7 @@ public abstract class GuiMixin implements GuiExtension {
   //--------DISABLE VANILLA OVERLAYS--------\\
     \* ********************************** */
     @Inject(at = @At("HEAD"), method = "renderHotbar", cancellable = true)
-    public void visor$noVanillaHotbar(CallbackInfo ci) {
+    public void visor$noVanillaHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VisorState.get().isNotActive()
                 || (minecraft.screen == null
                 && !VRClientSettings.isHudDisableHotBar()
@@ -41,25 +44,25 @@ public abstract class GuiMixin implements GuiExtension {
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderPlayerHealth", cancellable = true)
-    public void visor$noVanillaPlayerHealth(CallbackInfo ci) {
+    public void visor$noVanillaPlayerHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderVehicleHealth", cancellable = true)
-    public void visor$noVanillaVehicleHealth(CallbackInfo ci) {
+    public void visor$noVanillaVehicleHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderJumpMeter", cancellable = true)
-    public void visor$noVanillaJumpMeter(CallbackInfo ci) {
+    public void visor$noVanillaJumpMeter(PlayerRideableJumping playerRideableJumping, GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderExperienceBar", cancellable = true)
-    public void visor$noVanillaExperienceBar(CallbackInfo ci) {
+    public void visor$noVanillaExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
@@ -91,27 +94,27 @@ public abstract class GuiMixin implements GuiExtension {
 
 
     @Inject(at = @At("HEAD"), method = "renderVignette", cancellable = true)
-    public void visor$noVanillaVignette(CallbackInfo ci) {
+    public void visor$noVanillaVignette(GuiGraphics guiGraphics, Entity entity, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderSpyglassOverlay", cancellable = true)
-    public void visor$noVanillaSpyglassOverlay(CallbackInfo ci) {
+    public void visor$noVanillaSpyglassOverlay(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderEffects", cancellable = true)
-    public void visor$noVanillaEffects(CallbackInfo ci) {
+    public void visor$noVanillaEffects(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderSelectedItemName", cancellable = true)
-    public void visor$noVanillaSelectedItemName(CallbackInfo ci) {
+    public void visor$noVanillaSelectedItemName(GuiGraphics guiGraphics, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderSavingIndicator", cancellable = true)
-    public void visor$noAutoSaveText(CallbackInfo ci) {
+    public void visor$noAutoSaveText(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
@@ -129,7 +132,7 @@ public abstract class GuiMixin implements GuiExtension {
     }
 
     @Inject(at = @At("HEAD"), method = "renderCrosshair", cancellable = true)
-    public void visor$noCrosshair(GuiGraphics guiGraphics, CallbackInfo ci) {
+    public void visor$noCrosshair(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
