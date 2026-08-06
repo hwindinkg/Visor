@@ -618,7 +618,7 @@ public class VRSettingsScreen extends Screen {
             scrollCategories(delta < 0 ? 1 : -1);
             return true;
         }
-        options.mouseScrolled(mouseX, mouseY, 0.0, delta);
+        options.mouseScrolled(mouseX, mouseY, delta);
         return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
     }
 }

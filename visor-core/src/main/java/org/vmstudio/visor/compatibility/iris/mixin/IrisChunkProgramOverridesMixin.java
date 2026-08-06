@@ -58,7 +58,7 @@ public class IrisChunkProgramOverridesMixin {
                 if (!(manager.visor$getPassPipeline(pass) instanceof WorldRenderingPipeline passPipeline)) {
                     continue;
                 }
-                SodiumTerrainPipeline passSodiumPipeline = passPipeline.getSodiumTerrainPipeline();
+                SodiumTerrainPipeline passSodiumPipeline = sodiumTerrainPipeline;
                 if (passSodiumPipeline == null) {
                     continue;
                 }
@@ -74,13 +74,7 @@ public class IrisChunkProgramOverridesMixin {
             IrisCompatHelper.latchPerEyeOff(t);
             visor$deletePassPrograms();
         }
-        SodiumTerrainPipeline baseSodiumPipeline = sodiumTerrainPipeline;
-        if (((IrisPipelineManagerExtension) Iris.getPipelineManager())
-                .visor$getBasePipeline() instanceof WorldRenderingPipeline basePipeline
-                && basePipeline.getSodiumTerrainPipeline() != null) {
-            baseSodiumPipeline = basePipeline.getSodiumTerrainPipeline();
-        }
-        instance.createShaders(baseSodiumPipeline, vertexType);
+        instance.createShaders(sodiumTerrainPipeline, vertexType);
     }
 
     @Redirect(method = "getProgramOverride", at = @At(value = "INVOKE",

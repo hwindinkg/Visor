@@ -30,6 +30,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.*;
 
 import java.util.ArrayList;
@@ -107,10 +108,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
         RenderSystem.backupProjectionMatrix();
 
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.setIdentity();
-        posestack.translate(0.0D, 0.0D, -11000.0D);
+        Matrix4fStack posestack = RenderSystem.getModelViewStack();
+        posestack.pushMatrix();
+        posestack.identity();
+        posestack.translate(0.0F, 0.0F, -11000.0F);
         RenderSystem.applyModelViewMatrix();
         RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
@@ -173,7 +174,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         // --- Restore ---
         RenderSystem.restoreProjectionMatrix();
 
-        posestack.popPose();
+        posestack.popMatrix();
 
     }
 

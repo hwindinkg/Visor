@@ -59,7 +59,7 @@ public class OptionsScreenGeneral extends OptionsScreen<OverlayOptionsGeneral> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double delta) {
-        widgetsList.mouseScrolled(mouseX, mouseY, 0.0, delta);
+        widgetsList.mouseScrolled(mouseX, mouseY, delta);
         return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
     }
 }

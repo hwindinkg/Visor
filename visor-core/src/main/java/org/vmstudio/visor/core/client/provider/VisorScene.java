@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.provider;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix4fStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
@@ -47,7 +48,7 @@ public class VisorScene implements AtumVRScene {
         var profiler =  renderContext.profiler();
 
         // pop pose pushed in onGameRenderStart method
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
 
 
         RenderSystem.depthMask(true);
@@ -156,19 +157,18 @@ public class VisorScene implements AtumVRScene {
         }
 
         MC.gameRenderer.render(
-                context.partialTicks(),
-                context.nanoTime(),
+                MC.getTimer(),
                 context.renderLevel()
         );
 
         if (ShadersHelper.isShaderActive()) {
             MC.mainRenderTarget.bindWrite(true);
-            PoseStack modelView = RenderSystem.getModelViewStack();
-            modelView.pushPose();
-            modelView.setIdentity();
+            Matrix4fStack modelView = RenderSystem.getModelViewStack();
+            modelView.pushMatrix();
+            modelView.identity();
             RenderSystem.applyModelViewMatrix();
             ClientContext.decorationRenderer.renderShaderUi(new PoseStack(), context.partialTicks());
-            modelView.popPose();
+            modelView.popMatrix();
             RenderSystem.applyModelViewMatrix();
         }
 

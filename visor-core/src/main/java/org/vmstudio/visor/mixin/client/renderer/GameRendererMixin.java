@@ -311,7 +311,7 @@ public abstract class GameRendererMixin
                         minecraft.options.fov().get()
                 )
         );
-        RenderSystem.getModelViewStack().setIdentity();
+        RenderSystem.getModelViewStack().identity();
         RenderSystem.applyModelViewMatrix();
     }
 

@@ -389,8 +389,8 @@ public class VRSettingsConfirmCrossBinding extends VROptionsSet {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalDelta, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         destinationList.mouseScrolled(mouseX, mouseY, 0.0, delta);
-        return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 }
