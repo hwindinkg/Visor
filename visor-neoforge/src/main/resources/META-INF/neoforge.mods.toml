@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[46,)"
+loaderVersion = "[4,)"
 license = "LGPLv3"
 
 [[mods]]
@@ -15,15 +15,15 @@ The VR mod that is built to support addons
 '''
 
 [[dependencies.visor]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[46,)"
+versionRange = "[21.1,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.visor]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20,1.20.1]"
+versionRange = "[1.21,1.21.1]"
 ordering = "AFTER"
 side = "BOTH"
