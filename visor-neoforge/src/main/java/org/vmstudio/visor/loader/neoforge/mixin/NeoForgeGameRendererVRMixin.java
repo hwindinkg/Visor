@@ -1,54 +1,33 @@
-package org.vmstudio.visor.loader.forge.mixin;
+package org.vmstudio.visor.loader.neoforge.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.GameRenderer;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 
+/**
+ * In 1.20.1 (Forge) the vanilla yaw/pitch rotation of the level camera was
+ * re-applied inside {@code GameRenderer.renderLevel} via
+ * {@code Camera.setAnglesInternal} and additional {@code PoseStack.mulPose}
+ * calls; this mixin skipped them for VR eye passes.
+ * <p>
+ * In 1.21.1 that pipeline was rebuilt: {@code GameRenderer.renderLevel} no
+ * longer rotates the camera (no {@code setAnglesInternal}, no {@code mulPose}),
+ * the rotation now happens once in {@link Camera#setup} via
+ * {@code setRotation(yaw, pitch)} (protected, opened via visor.accesstransformer).
+ * The mixin moves the same cancellation to that single rotation point; the
+ * old mulPose X/Y/Z hooks have no equivalent target in 1.21.1 and were removed.
+ */
+@Mixin(Camera.class)
+public class NeoForgeGameRendererVRMixin {
 
-@Mixin(GameRenderer.class)
-public class ForgeGameRendererVRMixin {
-
-
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setAnglesInternal(FF)V", remap = false), method = "renderLevel")
-    public void removeAnglesInternal(Camera cam, float yaw, float pitch) {
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 0), method = "setup")
+    public void removeVanillaCameraRotation(Camera camera, float yaw, float pitch) {
         if (VRRenderState.getPhase().isVanilla()
                 || !VRRenderState.getRenderPass().isEye()) {
-            cam.setAnglesInternal(yaw, pitch);
-        }
-
-    }
-
-    @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2), method = "renderLevel")
-    public void removeMulPosXRotation(PoseStack poseStack, Quaternionf quaternion) {
-        if (VRRenderState.getPhase().isVanilla()
-                || !VRRenderState.getRenderPass().isEye()) {
-            poseStack.mulPose(quaternion);
+            camera.setRotation(yaw, pitch);
         }
     }
-
-    @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V ", ordinal = 3), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
-    public void removeMulPosYRotation(PoseStack s, Quaternionf quaternion) {
-        if (VRRenderState.getPhase().isVanilla()) {
-            s.mulPose(quaternion);
-        }
-    }
-
-    @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V ", ordinal = 4), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
-    public void removeMulPosZRotation(PoseStack s, Quaternionf quaternion) {
-        if (VRRenderState.getPhase().isVanilla()) {
-            s.mulPose(quaternion);
-        } else {
-            RenderPoseHelper.applyCameraOrientation(VRRenderState.getRenderPass(), s);
-        }
-    }
-
 
 }
