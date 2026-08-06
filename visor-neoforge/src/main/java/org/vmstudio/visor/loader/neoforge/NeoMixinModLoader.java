@@ -1,10 +1,10 @@
-package org.vmstudio.visor.loader.forge;
+package org.vmstudio.visor.loader.neoforge;
 
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.MixinModLoader;
 
-public class ForgeMixinModLoader implements MixinModLoader {
+public class NeoMixinModLoader implements MixinModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
