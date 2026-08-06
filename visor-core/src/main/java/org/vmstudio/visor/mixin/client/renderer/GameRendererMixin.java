@@ -555,9 +555,7 @@ public abstract class GameRendererMixin
 
     //ITEM ACTIVATION ANIMATION
     @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"))
-    private void visor$noScaleItem(PoseStack poseStack, float x, float y, float z, int width, int height,
-                                   float partialTicks
-    ) {
+    private void visor$noScaleItem(PoseStack poseStack, float x, float y, float z) {
         if (VRRenderState.getPhase().isVanilla()) {
             poseStack.scale(x, y, z);
             return;
@@ -566,7 +564,7 @@ public abstract class GameRendererMixin
         var cameraPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera);
         // need to do stuff twice, because redirects have no access to locals
         int i = 40 - this.itemActivationTicks;
-        float g = ((float) i + partialTicks) / 40.0f;
+        float g = ((float) i) / 40.0f;
         float h = g * g;
         float l = g * h;
         float m = 10.25f * l * h - 24.95f * h * h + 25.5f * l - 13.8f * h + 4.0f * g;
