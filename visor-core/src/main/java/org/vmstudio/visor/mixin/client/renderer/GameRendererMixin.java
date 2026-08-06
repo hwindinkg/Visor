@@ -159,7 +159,7 @@ public abstract class GameRendererMixin
      * Cancels GUI rendering for VRWorld stage and render VR main menu room
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V", cancellable = true)
-    public void visor$onRenderGUI(DeltaTracker deltaTracker, CallbackInfo info) {
+    public void visor$onRenderGUI(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo info) {
 
         if (VRRenderState.getPhase().isNotVRWorld()) {
             // Proceed rendering GUI for Vanilla and VRGui stage
