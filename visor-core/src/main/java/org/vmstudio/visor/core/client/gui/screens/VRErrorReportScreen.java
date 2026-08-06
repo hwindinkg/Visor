@@ -80,7 +80,7 @@ public class VRErrorReportScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics gfx, int mx, int my, float pt) {
-        this.renderBackground(gfx);
+        this.renderBackground(gfx, mx, my, pt);
 
         gfx.drawCenteredString(this.font, this.title, this.width/2, 15, 0xFF5555);
 

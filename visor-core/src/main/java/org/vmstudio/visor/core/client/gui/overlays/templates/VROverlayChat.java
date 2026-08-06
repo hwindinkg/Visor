@@ -39,7 +39,8 @@ public class VROverlayChat extends VROverlayTemplateScreen {
     protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         minecraft.gui.getChat().render(
                 guiGraphics,
-                minecraft.gui.getGuiTicks(),0, 0
+                minecraft.gui.getGuiTicks(),0, 0,
+                false
         );
     }
 

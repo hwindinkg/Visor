@@ -11,16 +11,14 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 
 public class VRMenuPanorama {
-    private static final ResourceLocation cubeFront = new ResourceLocation(VRClientSettings.getPanoramaFront());
-    private static final ResourceLocation cubeBack = new ResourceLocation(VRClientSettings.getPanoramaBack());
-    private static final ResourceLocation cubeRight = new ResourceLocation(VRClientSettings.getPanoramaRight());
-    private static final ResourceLocation cubeLeft = new ResourceLocation(VRClientSettings.getPanoramaLeft());
-    private static final ResourceLocation cubeUp = new ResourceLocation(VRClientSettings.getPanoramaUp());
-    private static final ResourceLocation cubeBelow = new ResourceLocation(VRClientSettings.getPanoramaBelow());
+    private static final ResourceLocation cubeFront = ResourceLocation.parse(VRClientSettings.getPanoramaFront());
+    private static final ResourceLocation cubeBack = ResourceLocation.parse(VRClientSettings.getPanoramaBack());
+    private static final ResourceLocation cubeRight = ResourceLocation.parse(VRClientSettings.getPanoramaRight());
+    private static final ResourceLocation cubeLeft = ResourceLocation.parse(VRClientSettings.getPanoramaLeft());
+    private static final ResourceLocation cubeUp = ResourceLocation.parse(VRClientSettings.getPanoramaUp());
+    private static final ResourceLocation cubeBelow = ResourceLocation.parse(VRClientSettings.getPanoramaBelow());
 
     public static void render(PoseStack poseStack) {
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.clear(GL11C.GL_COLOR_BUFFER_BIT | GL11C.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         RenderSystem.depthMask(true);
@@ -35,81 +33,81 @@ public class VRMenuPanorama {
 
         // Down face
         RenderSystem.setShaderTexture(0, cubeBelow);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 0, 0, 0)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 0, 100)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 0, 100)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 0, 0)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 0, 0, 0)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 0, 100)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 0, 100)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 0, 0)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // Up face
         RenderSystem.setShaderTexture(0, cubeUp);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 0, 100, 100)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 100, 0)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 0)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 100)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 0, 100, 100)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 100, 0)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 0)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 100)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // Left face
         RenderSystem.setShaderTexture(0, cubeLeft);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 0, 0, 0)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 100, 0)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 100, 100)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 0, 100)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 0, 0, 0)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 100, 0)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 100, 100)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 0, 100)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // Right face
         RenderSystem.setShaderTexture(0, cubeRight);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 100, 0, 0)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 0, 100)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 100)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 0)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 100, 0, 0)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 0, 100)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 100)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 0)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // Front face
         RenderSystem.setShaderTexture(0, cubeFront);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 0, 0, 0)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 0, 0)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 0)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 100, 0)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 0, 0, 0)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 0, 0)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 0)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 100, 0)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         // Back face
         RenderSystem.setShaderTexture(0, cubeBack);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix, 0, 0, 100)
-                .uv(1, 1).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 0, 100, 100)
-                .uv(1, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 100, 100)
-                .uv(0, 0).color(255, 255, 255, 255).endVertex();
-        bufferbuilder.vertex(matrix, 100, 0, 100)
-                .uv(0, 1).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex(matrix, 0, 0, 100)
+                .setUv(1, 1).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 0, 100, 100)
+                .setUv(1, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 100, 100)
+                .setUv(0, 0).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix, 100, 0, 100)
+                .setUv(0, 1).setColor(255, 255, 255, 255);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
         poseStack.popPose();
     }

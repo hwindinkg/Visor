@@ -111,7 +111,6 @@ public class VRSettingsAddonsScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
-        this.list.renderBackground(guiGraphics);
         this.list.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
@@ -138,8 +137,8 @@ public class VRSettingsAddonsScreen extends Screen {
         @Override
         protected void renderListBackground(GuiGraphics guiGraphics) {
             guiGraphics.fill(
-                    this.x0, this.y0,
-                    this.x1, this.y1,
+                    this.getX(), this.getY(),
+                    this.getX() + this.getWidth(), this.getY() + this.getHeight(),
                     AtumColor.BLACK.withAlpha(0.5f).asInt()
             );
         }

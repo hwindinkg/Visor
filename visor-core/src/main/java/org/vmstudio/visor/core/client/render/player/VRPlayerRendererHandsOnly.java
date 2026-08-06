@@ -112,14 +112,15 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
 
     @Override
     protected void setupRotations(
-            AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick)
+            AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick,
+            float scale)
     {
         if (VRRenderState.getPhase().isVRGui()) {
             if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
                 return;
             }
-            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
             return;
         }
 
@@ -129,7 +130,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         }
 
         // vanilla below here
-        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
     }
 
 
@@ -178,11 +179,11 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
 
         // render hand
         rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+                OverlayTexture.NO_OVERLAY);
 
         // render armor
         rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+                OverlayTexture.NO_OVERLAY);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

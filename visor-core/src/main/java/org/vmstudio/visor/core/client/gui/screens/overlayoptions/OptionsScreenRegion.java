@@ -408,14 +408,14 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         Matrix4f pose = gui.pose().last().pose();
         BufferBuilder buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         // bottom-left
-        buf.vertex(pose, previewX, previewY + previewH, 0).uv(0.0f, 0.0f).endVertex();
+        buf.addVertex(pose, previewX, previewY + previewH, 0).setUv(0.0f, 0.0f);
         // bottom-right
-        buf.vertex(pose, previewX + previewW, previewY + previewH, 0).uv(uMax, 0.0f).endVertex();
+        buf.addVertex(pose, previewX + previewW, previewY + previewH, 0).setUv(uMax, 0.0f);
         // top-right
-        buf.vertex(pose, previewX + previewW, previewY, 0).uv(uMax, vMax).endVertex();
+        buf.addVertex(pose, previewX + previewW, previewY, 0).setUv(uMax, vMax);
         // top-left
-        buf.vertex(pose, previewX, previewY, 0).uv(0.0f, vMax).endVertex();
-        BufferUploader.drawWithShader(buf.build());
+        buf.addVertex(pose, previewX, previewY, 0).setUv(0.0f, vMax);
+        BufferUploader.drawWithShader(buf.buildOrThrow());
 
         RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();

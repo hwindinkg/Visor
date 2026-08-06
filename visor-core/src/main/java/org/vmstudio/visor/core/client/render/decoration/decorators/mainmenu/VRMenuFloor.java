@@ -14,13 +14,12 @@ import org.vmstudio.visor.core.client.utils.ClientUtils;
  */
 public final class VRMenuFloor {
     private static final ResourceLocation floorTexture =
-            new ResourceLocation(VRClientSettings.getMainMenuFloor());
+            ResourceLocation.parse(VRClientSettings.getMainMenuFloor());
 
     private VRMenuFloor() {
     }
 
     public static void render(PoseStack poseStack) {
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         Vector2f area = ClientUtils.getPlayAreaSize();
 
         for (int i = 0; i < 2; i++) {
@@ -34,33 +33,33 @@ public final class VRMenuFloor {
             int r = 128, g = 128, b = 128;
 
             Matrix4f matrix4f = poseStack.last().pose();
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
             poseStack.translate(-width / 2.0F, 0.0F, -length / 2.0F);
 
             final int repeat = 4;
 
             bufferbuilder
-                    .vertex(matrix4f, 0, 0.005f * -i, 0)
-                    .uv(0, 0)
-                    .color(r, g, b, 255)
-                    .normal(0, 1, 0).endVertex();
+                    .addVertex(matrix4f, 0, 0.005f * -i, 0)
+                    .setUv(0, 0)
+                    .setColor(r, g, b, 255)
+                    .setNormal(0, 1, 0);
             bufferbuilder
-                    .vertex(matrix4f, 0, 0.005f * -i, length)
-                    .uv(0, repeat * length)
-                    .color(r, g, b, 255)
-                    .normal(0, 1, 0).endVertex();
+                    .addVertex(matrix4f, 0, 0.005f * -i, length)
+                    .setUv(0, repeat * length)
+                    .setColor(r, g, b, 255)
+                    .setNormal(0, 1, 0);
             bufferbuilder
-                    .vertex(matrix4f, width, 0.005f * -i, length)
-                    .uv(repeat * width, repeat * length)
-                    .color(r, g, b, 255)
-                    .normal(0, 1, 0).endVertex();
+                    .addVertex(matrix4f, width, 0.005f * -i, length)
+                    .setUv(repeat * width, repeat * length)
+                    .setColor(r, g, b, 255)
+                    .setNormal(0, 1, 0);
             bufferbuilder
-                    .vertex(matrix4f, width, 0.005f * -i, 0)
-                    .uv(repeat * width, 0)
-                    .color(r, g, b, 255)
-                    .normal(0, 1, 0).endVertex();
+                    .addVertex(matrix4f, width, 0.005f * -i, 0)
+                    .setUv(repeat * width, 0)
+                    .setColor(r, g, b, 255)
+                    .setNormal(0, 1, 0);
 
-            BufferUploader.drawWithShader(bufferbuilder.end());
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 
             poseStack.popPose();
         }
