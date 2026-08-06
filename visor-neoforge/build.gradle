@@ -80,6 +80,10 @@ shadowJar {
     exclude "org.joml"
     exclude "org.lwjgl"
     exclude "org.slf4j"
+    // error_prone_annotations is provided by NeoForge itself; bundling it causes
+    // a JPMS split-package conflict ("Modules visor and com.google.errorprone.annotations export package ...").
+    exclude "com/google/errorprone/**"
+    exclude "META-INF/maven/com.google.errorprone/**"
 
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     configurations = [
