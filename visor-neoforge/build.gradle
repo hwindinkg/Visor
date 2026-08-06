@@ -71,6 +71,10 @@ processResources {
 }
 
 shadowJar {
+    manifest {
+        attributes(["MixinConfigs": "visor.mixins.json,visor.sodium.mixins.json,visor.replaymod.mixins.json,visor.flashback.mixins.json,visor.dh.mixins.json,visor.iris.mixins.json,visor.mixins.neoforge.json"])
+    }
+
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
     exclude "org.joml"

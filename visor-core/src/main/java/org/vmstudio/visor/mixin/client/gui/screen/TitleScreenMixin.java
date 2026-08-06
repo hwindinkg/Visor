@@ -93,7 +93,7 @@ public abstract class TitleScreenMixin extends Screen {
         }
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(FF)V"), method = "render", index = 1)
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;IIFF)V"), method = "renderPanorama", index = 4)
     public float visor$noPanorama(float alpha) {
         return VisorState.get().isActive()
                 ? 0.0F
