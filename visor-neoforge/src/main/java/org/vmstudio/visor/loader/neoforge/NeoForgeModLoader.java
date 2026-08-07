@@ -256,7 +256,10 @@ public class NeoForgeModLoader implements ModLoader {
                 }
                 // Hand a copy to the channel: the existing VisorPayload serialization
                 // (read byte-id + payload) is performed by VisorChannel.handleToServer/ToClient.
-                FriendlyByteBuf copy = new FriendlyByteBuf(buf.copy());
+                // readBytes() advances the readerIndex of the inbound buffer — unlike
+                // copy(), which leaves it untouched and makes vanilla's PacketDecoder
+                // treat every payload byte as "extra", disconnecting the client.
+                FriendlyByteBuf copy = new FriendlyByteBuf(buf.readBytes(buf.readableBytes()));
                 return new ChannelPayload(id, copy);
             }
 
