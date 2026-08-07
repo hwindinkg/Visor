@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
@@ -74,7 +74,7 @@ public class VRShaderPostProcessEye implements VRShader{
 
         RenderShaderHelper.renderFullscreenQuad(handle, source);
 
-        GLUtils.checkGLError("post process eye: "+ eye.name());
+        RenderHelper.logGLErrorSoft("post process eye: "+ eye.name());
     }
 
 

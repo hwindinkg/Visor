@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.render.target.types;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.render.target.RenderTargetHolder;
 import org.vmstudio.visor.core.client.render.target.VRRenderTarget;
@@ -24,7 +24,7 @@ public class RenderTargetThird implements RenderTargetHolder {
                 true, false
         );
 
-        GLUtils.checkGLError("Third Person target setup");
+        RenderHelper.logGLErrorSoft("Third Person target setup");
         VisorClientImpl.LOGGER.info(this.target.toString());
 
 

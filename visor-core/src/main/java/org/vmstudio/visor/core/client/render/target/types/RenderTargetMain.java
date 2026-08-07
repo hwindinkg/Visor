@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.render.target.types;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
@@ -29,7 +29,7 @@ public class RenderTargetMain implements RenderTargetHolder {
                  true,
                 true
         );
-        GLUtils.checkGLError("Main VR target setup");
+        RenderHelper.logGLErrorSoft("Main VR target setup");
         VisorClientImpl.LOGGER.info(this.target.toString());
 
         var mcWindow = (WindowExtension) (Object) MC.getWindow();
@@ -40,7 +40,7 @@ public class RenderTargetMain implements RenderTargetHolder {
                 true, () -> -1,
                 false, false
         );
-        GLUtils.checkGLError("Mirror VR target setup");
+        RenderHelper.logGLErrorSoft("Mirror VR target setup");
         VisorClientImpl.LOGGER.info(this.mirrorTarget.toString());
 
 

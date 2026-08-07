@@ -8,7 +8,7 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
 import me.phoenixra.atumvr.api.rendering.AtumVRScene;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
@@ -69,7 +69,7 @@ public class VisorScene implements AtumVRScene {
                 renderContext.partialTicks()
         );
         profiler.pop();
-        GLUtils.checkGLError("post VR Overlays texturing");
+        RenderHelper.logGLErrorSoft("post VR Overlays texturing");
 
         ShadersHelper.bridge().beginFrame(
                 renderContext.partialTicks(),
@@ -83,7 +83,7 @@ public class VisorScene implements AtumVRScene {
                     renderPass,
                     renderContext
             );
-            GLUtils.checkGLError("post VR render pass: " + renderPass.name());
+            RenderHelper.logGLErrorSoft("post VR render pass: " + renderPass.name());
 
 
             if (ClientContext.renderer.isAskedForScreenShot()) {
@@ -100,7 +100,7 @@ public class VisorScene implements AtumVRScene {
         MC.mainRenderTarget.bindWrite(true);
         MirrorHelper.drawMirror();
         profiler.pop();
-        GLUtils.checkGLError("post mirror");
+        RenderHelper.logGLErrorSoft("post mirror");
 
 
     }

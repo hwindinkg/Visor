@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.render.target.types;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -34,7 +34,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
                 true,
                 ()-> -1, true, false
         );
-        GLUtils.checkGLError("GUI target setup");
+        RenderHelper.logGLErrorSoft("GUI target setup");
         VisorClientImpl.LOGGER.info(target.toString());
 
 
@@ -54,7 +54,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
                         () -> -1,
                         true, false
                 );
-                GLUtils.checkGLError("Overlay " + overlayScreen.getId() + " framebuffer setup");
+                RenderHelper.logGLErrorSoft("Overlay " + overlayScreen.getId() + " framebuffer setup");
                 overlayTargets.put(overlayScreen, renderTarget);
                 overlayScreen.setRenderTarget(renderTarget);
             }
@@ -112,7 +112,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
                     () -> -1,
                     true, false
             );
-            GLUtils.checkGLError("Overlay " + overlayScreen.getId() + " framebuffer setup");
+            RenderHelper.logGLErrorSoft("Overlay " + overlayScreen.getId() + " framebuffer setup");
             overlayTargets.put(overlayScreen, renderTarget);
         }else if(renderTarget != null && !visible){
             renderTarget.destroyBuffers();

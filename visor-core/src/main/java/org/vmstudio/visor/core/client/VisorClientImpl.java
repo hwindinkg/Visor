@@ -6,7 +6,7 @@ import me.phoenixra.atumconfig.core.AtumConfigManager;
 import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
@@ -342,7 +342,7 @@ public class VisorClientImpl implements VisorClient {
             );
             ClientContext.renderer.render(context);
             context.profiler().pop();
-            GLUtils.checkGLError("post VR render");
+            RenderHelper.logGLErrorSoft("post VR render");
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }

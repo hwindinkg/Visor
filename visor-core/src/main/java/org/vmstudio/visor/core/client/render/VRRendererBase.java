@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -102,9 +102,9 @@ public abstract class VRRendererBase implements VRRenderer {
     public void onGameRenderStart(boolean renderLevel) {
 
         try {
-            GLUtils.checkGLError("pre render setup ");
+            RenderHelper.logGLErrorSoft("pre render setup ");
             ClientContext.renderer.updateState();
-            GLUtils.checkGLError("post render setup ");
+            RenderHelper.logGLErrorSoft("post render setup ");
         } catch (Throwable throwable) {
             VisorState.destroyVRWithErrorScreen(throwable);
             return;
@@ -162,7 +162,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
     public void createTargets() throws Throwable {
         destroy();
-        GLUtils.checkGLError("destroy on create");
+        RenderHelper.logGLErrorSoft("destroy on create");
 
         Minecraft minecraft = Minecraft.getInstance();
         int eyeWidth = getResolutionWidth();

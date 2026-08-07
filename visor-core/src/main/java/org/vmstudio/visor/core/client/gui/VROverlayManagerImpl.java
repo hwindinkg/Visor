@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
 import org.vmstudio.visor.api.client.gui.VROverlayManager;
 import org.vmstudio.visor.api.client.gui.OverlayConfigAccessor;
@@ -168,7 +168,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
             }
 
             profiler.pop();
-            GLUtils.checkGLError("post VROverlay texture: "+overlay.getId());
+            RenderHelper.logGLErrorSoft("post VROverlay texture: "+overlay.getId());
         }
 
         // --- Restore ---
@@ -198,7 +198,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         );
 
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
-        GLUtils.checkGLError("before depth overlays");
+        RenderHelper.logGLErrorSoft("before depth overlays");
 
         for (VROverlay overlay : preparedDepthOverlays) {
             if (!overlay.isVisible()) {
@@ -224,7 +224,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     drawDragHandle,
                     overlay.getPose().getScale()
             );
-            GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
+            RenderHelper.logGLErrorSoft("post depth VROverlay quad: " + overlay.getId());
         }
 
         poseStack.popPose();
@@ -248,7 +248,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         );
 
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
-        GLUtils.checkGLError("before hud overlays");
+        RenderHelper.logGLErrorSoft("before hud overlays");
 
         for (VROverlay overlay : preparedHudOverlays) {
             if (!overlay.isVisible()) {
@@ -274,7 +274,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getScale()
             );
 
-            GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
+            RenderHelper.logGLErrorSoft("post hud VROverlay quad: " + overlay.getId());
         }
 
         poseStack.popPose();

@@ -9,6 +9,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.atumvr.core.utils.XRUtils;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.core.client.provider.VisorScene;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.jetbrains.annotations.NotNull;
@@ -312,7 +313,7 @@ public class XrRenderer extends VRRendererBase {
                             openxrImage.image(),
                             eyeIndex
                     ).init();
-                    GLUtils.checkGLError(eyeType.name() + " " + i + " framebuffer setup");
+                    RenderHelper.logGLErrorSoft(eyeType.name() + " " + i + " framebuffer setup");
                 }
                 if (eyeType == EyeType.LEFT) {
                     this.leftFramebuffers = framebuffers;

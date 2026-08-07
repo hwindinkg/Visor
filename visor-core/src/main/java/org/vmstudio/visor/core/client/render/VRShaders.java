@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.render;
 
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.shaders.*;
 
 
@@ -31,23 +31,23 @@ public class VRShaders {
     public static void setup() throws Exception {
         postProcess = new VRShaderPostProcessEye();
         postProcess.init();
-        GLUtils.checkGLError("init PostProcess shader");
+        RenderHelper.logGLErrorSoft("init PostProcess shader");
 
         mixedReality = new VRShaderMixedReality();
         mixedReality.init();
-        GLUtils.checkGLError("init MixedReality shader");
+        RenderHelper.logGLErrorSoft("init MixedReality shader");
 
         teleportPoint = new VRShaderTeleportPoint();
         teleportPoint.init();
-        GLUtils.checkGLError("init TeleportPoint shader");
+        RenderHelper.logGLErrorSoft("init TeleportPoint shader");
 
         endPortal = new VRShaderEndPortal();
         endPortal.init();
-        GLUtils.checkGLError("init EndPortal shader");
+        RenderHelper.logGLErrorSoft("init EndPortal shader");
 
         inBlockVignette = new VRShaderInBlockVignette();
         inBlockVignette.init();
-        GLUtils.checkGLError("init InBlockVignette shader");
+        RenderHelper.logGLErrorSoft("init InBlockVignette shader");
     }
 
 
