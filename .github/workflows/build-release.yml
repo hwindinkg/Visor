@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - neoforge-1.21.1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build NeoForge jar
+        run: ./gradlew :visor-neoforge:remapJar --no-daemon
+
+      - name: Determine version
+        run: |
+          JAR=$(ls visor-neoforge/build/libs/Visor-*+mc1.21.1-neoforge.jar 2>/dev/null | head -1)
+          test -n "$JAR" || { echo "No NeoForge jar found in visor-neoforge/build/libs"; exit 1; }
+          VERSION=$(basename "$JAR" | sed 's/^Visor-\(.*\)-neoforge\.jar$/\1/')
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Built jar: $JAR"
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete "v$VERSION" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "v$VERSION" visor-neoforge/build/libs/*.jar \
+            --title "Visor $VERSION (MC 1.21.1 NeoForge)" \
+            --notes "Automated build from neoforge-1.21.1"
