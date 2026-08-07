@@ -1,6 +1,5 @@
 package org.vmstudio.visor.core.client.render;
 
-import com.mojang.math.Axis;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -85,10 +84,14 @@ public class VRGameCamera extends Camera {
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
         this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
-        // Build rotation quaternion: Yaw then Pitch
-        this.rotation().identity()
-                .mul(Axis.YP.rotationDegrees(-this.yRot))
-                .mul(Axis.XP.rotationDegrees( this.xRot));
+        // Full camera orientation from the OpenXR pose.
+        // GameRenderer.renderLevel consumes rotation().conjugated() as the view
+        // matrix (view = R^-1) — the same value 1.20.1 applied to the PoseStack
+        // via RenderPoseHelper.applyCameraOrientation (rotation.transpose()).
+        // Reconstructing the rotation from yaw/pitch angles here (Y(-yRot)*X(xRot))
+        // mirrored the view: vanilla builds rotationYXZ(PI-yaw, -pitch, 0), so the
+        // camera ended up yawed 180° with inverted pitch (all axes flipped).
+        this.rotation().setFromNormalized(cameraElement.getRotation());
     }
 
     private void setupSpectatedVR(Entity entity) {
@@ -112,9 +115,8 @@ public class VRGameCamera extends Camera {
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
         this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
-        this.rotation().identity()
-                .mul(Axis.YP.rotationDegrees(-this.yRot))
-                .mul(Axis.XP.rotationDegrees( this.xRot));
+        // Same as setupVR: use the full pose rotation (view = rotation().conjugated()).
+        this.rotation().setFromNormalized(hmd.getRotation());
     }
 
 }
