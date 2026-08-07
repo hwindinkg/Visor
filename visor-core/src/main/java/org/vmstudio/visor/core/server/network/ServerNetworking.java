@@ -115,6 +115,15 @@ public class ServerNetworking {
         vrPlayer.getKnownTrackers().retainAll(currentTrackers);
         vrPlayer.getKnownTrackers().addAll(currentTrackers);
 
+        if (trackerConnections.isEmpty()) {
+            // No VR players tracking this player this tick: nothing to send.
+            // knownTrackers bookkeeping above already ran (cleared on empty), so a
+            // future tracker still gets the full initial burst. Return before the
+            // sends to avoid allocating packet buffers every tick (called per
+            // player per tick from ServerListenerMixins).
+            return;
+        }
+
 
         UUID uuid = serverPlayer.getUUID();
         String vrBody = vrPlayer.getVrBodyType();

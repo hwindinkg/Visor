@@ -10,9 +10,4 @@ public class NeoMixinModLoader implements MixinModLoader {
     public boolean isModLoaded(@NotNull String id) {
         return FMLLoader.getLoadingModList().getModFileById(id) != null;
     }
-
-    @Override
-    public @NotNull LoaderType getType() {
-        return LoaderType.FORGE;
-    }
 }

@@ -12,9 +12,10 @@ import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
 public class VisorMod {
 
     public VisorMod(final IEventBus modEventBus){
-        // RegisterPayloadHandlersEvent is fired on the mod bus during the
-        // construction phase, before channels arrive (FMLLoadCompleteEvent).
-        // NeoForgeModLoader buffers them and registers in onRegisterPayloads.
+        // Real NeoForge 1.21.1 order (CommonModLoader.finish): FMLLoadCompleteEvent
+        // fires FIRST — registerNetworkChannel calls land there and are buffered in
+        // NeoForgeModLoader.pendingChannels. RegisterPayloadHandlersEvent fires
+        // AFTER it, draining the buffer in onRegisterPayloads.
         NeoForgeModLoader loader = (NeoForgeModLoader) ModLoader.get();
         modEventBus.addListener(loader::onRegisterPayloads);
 

@@ -47,6 +47,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.VisorState;
 
 import org.vmstudio.visor.core.client.ClientContext;
@@ -539,7 +540,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
                 VisorState.destroyVR();
             }
         } catch (Throwable t) {
-            t.printStackTrace();
+            VisorClientImpl.LOGGER.error("Failed to destroy VR", t);
         }
     }
 

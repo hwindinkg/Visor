@@ -138,9 +138,6 @@ public interface ModLoader {
 
 
 
-    @NotNull
-    LoaderType getType();
-
     /**
      * Get instance of this class
      *
@@ -150,11 +147,6 @@ public interface ModLoader {
         return Instance.get();
     }
 
-
-    enum LoaderType{
-        FABRIC,
-        FORGE
-    }
 
     @ApiStatus.Internal
     final class Instance {

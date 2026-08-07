@@ -40,6 +40,7 @@ import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorPayload;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 
@@ -185,10 +186,12 @@ public class NeoForgeModLoader implements ModLoader {
     // ----- NETWORK -----
 
     /**
-     * Fired on the mod bus by {@link VisorMod} (constructor phase), BEFORE
-     * {@code ModLoader.registerNetworkChannel} calls arrive (they happen on
-     * {@code FMLLoadCompleteEvent}). Channels buffered in
-     * {@link #pendingChannels} are registered here, one payload type per channel.
+     * Fired on the mod bus by {@link VisorMod}. Real NeoForge 1.21.1 order
+     * ({@code CommonModLoader.finish}): {@code FMLLoadCompleteEvent} fires FIRST
+     * — that is where {@code ModLoader.registerNetworkChannel} calls arrive and
+     * get buffered into {@link #pendingChannels}. THEN
+     * {@code NetworkRegistry.setup} fires this event, which drains the buffer,
+     * one payload type per channel.
      */
     public void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("visor");
@@ -260,9 +263,13 @@ public class NeoForgeModLoader implements ModLoader {
             @Override
             public void encode(RegistryFriendlyByteBuf buf, ChannelPayload payload) {
                 buf.writeBytes(payload.data(), payload.data().readerIndex(), payload.data().readableBytes());
-                // The payload buffer is only consumed by encode(); nothing reads it
-                // afterwards, so release it here (hot path — called every frame).
-                payload.data().release();
+                // NOTE: do NOT release payload.data() here. One ChannelPayload is
+                // created per logical send and encoded once per connection (netty
+                // per-connection pipeline), so a release here would free the buffer
+                // under the first recipient and crash subsequent encodes with
+                // IllegalReferenceCountException. Outgoing buffers are small heap
+                // buffers (Unpooled.buffer()) — GC reclaims them. Inbound buffers
+                // (decode() copies) are released by the handlers in finally blocks.
             }
         };
     }
@@ -330,13 +337,7 @@ public class NeoForgeModLoader implements ModLoader {
         return new ChannelPayload(channelId, writePayload(payload)).toVanillaServerbound();
     }
 
-    private static FriendlyByteBuf writePayload(VisorPayloadToClient payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return buffer;
-    }
-
-    private static FriendlyByteBuf writePayload(VisorPayloadToServer payload) {
+    private static <T extends VisorPayload> FriendlyByteBuf writePayload(T payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
         return buffer;
@@ -353,11 +354,6 @@ public class NeoForgeModLoader implements ModLoader {
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
         return ClientHooks.renderFireOverlay(player, mat);
-    }
-
-    @Override
-    public @NotNull LoaderType getType() {
-        return LoaderType.FORGE;
     }
 
 

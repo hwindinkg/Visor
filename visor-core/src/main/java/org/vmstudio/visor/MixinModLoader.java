@@ -22,18 +22,9 @@ public interface MixinModLoader {
                 || ModLoader.get().isModLoaded("embeddium");
     }
 
-    @NotNull
-    LoaderType getType();
-
 
     static MixinModLoader get() {
         return MixinModLoader.Instance.get();
-    }
-
-
-    enum LoaderType{
-        FABRIC,
-        FORGE
     }
 
 
