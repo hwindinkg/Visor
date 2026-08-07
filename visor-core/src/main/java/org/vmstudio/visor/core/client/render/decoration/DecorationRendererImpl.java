@@ -2,7 +2,6 @@ package org.vmstudio.visor.core.client.render.decoration;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
-import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -27,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
@@ -68,7 +68,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                         renderAfterSolid(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
-                    GLUtils.checkGLError("post AFTER_SOLID events stage");
+                    RenderHelper.logGLErrorSoft("post AFTER_SOLID events stage");
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -78,7 +78,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                         renderAfterTranslucent(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
-                    GLUtils.checkGLError("post AFTER_TRANSLUCENT events stage");
+                    RenderHelper.logGLErrorSoft("post AFTER_TRANSLUCENT events stage");
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -88,7 +88,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                         renderAfterWorld(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
-                    GLUtils.checkGLError("post AFTER_WORLD events stage");
+                    RenderHelper.logGLErrorSoft("post AFTER_WORLD events stage");
                 }
         );
     }
@@ -244,7 +244,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         );
         currentDecorator.renderAfterSolid(poseStack, partialTicks);
 
-        GLUtils.checkGLError("post AFTER_SOLID stage");
+        RenderHelper.logGLErrorSoft("post AFTER_SOLID stage");
     }
 
     private void renderAfterTranslucent(PoseStack poseStack, float partialTicks) {
@@ -256,7 +256,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
         currentDecorator.renderAfterTranslucent(poseStack, partialTicks);
 
-        GLUtils.checkGLError("post AFTER_TRANSLUCENT stage");
+        RenderHelper.logGLErrorSoft("post AFTER_TRANSLUCENT stage");
     }
 
 
@@ -302,7 +302,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
         currentDecorator.renderAfterWorld(poseStack, partialTicks);
 
-        GLUtils.checkGLError("post AFTER_WORLD stage");
+        RenderHelper.logGLErrorSoft("post AFTER_WORLD stage");
     }
 
 
@@ -325,7 +325,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 true,
                 partialTicks
         );
-        GLUtils.checkGLError("post shader UI stage");
+        RenderHelper.logGLErrorSoft("post shader UI stage");
     }
 
     private void renderGameEffects(VRDecorator decorator,

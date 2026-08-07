@@ -4,6 +4,10 @@ package org.vmstudio.visor.core.client.render.helpers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.mixin.client.accessors.RenderSystemAccessor;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -23,8 +27,23 @@ import java.util.function.Supplier;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class RenderHelper {
+    private static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
+
     private RenderHelper() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
+
+    /**
+     * Soft GL check: drains all pending GL errors and logs a WARN, but never throws.
+     * Used at vanilla pipeline stages where GL errors may have been left by other
+     * mods (Sodium etc.). Note: GLUtils.drainGLErrors() returns the first error
+     * code (0 = no errors), not a count.
+     */
+    public static void logGLErrorSoft(String stage) {
+        int firstError = GLUtils.drainGLErrors();
+        if (firstError != 0) {
+            LOGGER.warn("OpenGL error code {} at stage '{}' - ignored (may be left by other mods)", firstError, stage);
+        }
     }
 
     public static boolean isInSolidBlock(Vector3fc in) {
