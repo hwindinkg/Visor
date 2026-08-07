@@ -5,6 +5,12 @@ architectury {
 
 loom{
     accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+    addMinecraftJarProcessor(
+            net.fabricmc.loom.configuration.accesstransformer.AccessTransformerJarProcessor,
+            "loom:access-transformer",
+            project,
+            [project(":visor-api").file("src/main/resources/visor.accesstransformer.cfg")]
+    )
 }
 
 dependencies {
