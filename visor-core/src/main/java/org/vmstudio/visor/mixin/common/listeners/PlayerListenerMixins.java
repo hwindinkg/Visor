@@ -5,6 +5,7 @@ import org.vmstudio.visor.core.server.network.ServerNetworking;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,7 +18,7 @@ public class PlayerListenerMixins {
     public static class PlayerListMixin {
 
         @Inject(at = @At("HEAD"), method = "placeNewPlayer")
-        private void visor$onLogin(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {
+        private void visor$onLogin(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie cookie, CallbackInfo ci) {
             if (VRServerSettings.isVrOnly()){
                 ServerNetworking.kickDelayedIfNoVR(serverPlayer);
             }

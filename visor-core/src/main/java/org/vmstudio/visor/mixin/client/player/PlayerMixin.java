@@ -17,11 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.utils.EnchantmentVisitor;
 
@@ -33,29 +30,5 @@ public abstract class PlayerMixin extends LivingEntity {
                           Level level
     ) {
         super(entityType, level);
-    }
-
-    /**
-     * Fixes issue with maxStepUp size of 1
-     * @param instance s
-     * @param x s
-     * @param y s
-     * @param z s
-     * @return s
-     */
-    @Redirect( method = "maybeBackOffFromEdge",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"))
-    private AABB visor$moveSidewaysExtendDown(AABB instance,
-                                             double x,
-                                             double y,
-                                             double z) {
-        return new AABB(
-                instance.minX + x,
-                instance.minY + y,
-                instance.minZ + z,
-                instance.maxX + x,
-                instance.maxY,
-                instance.maxZ + z
-        );
     }
 }
