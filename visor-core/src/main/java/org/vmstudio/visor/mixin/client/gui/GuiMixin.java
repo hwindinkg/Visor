@@ -35,7 +35,7 @@ public abstract class GuiMixin implements GuiExtension {
     /* ********************************** *\
   //--------DISABLE VANILLA OVERLAYS--------\\
     \* ********************************** */
-    @Inject(at = @At("HEAD"), method = "renderHotbar", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "renderHotbarAndDecorations", cancellable = true)
     public void visor$noVanillaHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VisorState.get().isNotActive()
                 || (minecraft.screen == null

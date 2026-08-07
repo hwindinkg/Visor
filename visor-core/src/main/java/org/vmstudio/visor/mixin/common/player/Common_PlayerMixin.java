@@ -7,13 +7,11 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -22,8 +20,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -173,9 +169,9 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return hand;
     }
 
-    // 1. replace getMainHand with getItemInHand()
+    // 1. replace getWeaponItem with getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+            target = "Lnet/minecraft/world/entity/player/Player;getWeaponItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
         if (vrPlayer == null) {
@@ -187,55 +183,28 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
-    // 2. getItemInHand()
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack visor$itemInHand(Player self, InteractionHand hand, Operation<ItemStack> original) {
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
-        if (vrPlayer == null) {
-            return original.call(self, hand);
-        }
-        return original.call(
-                self,
-                visor$attackHand(vrPlayer).asInteractionHand()
-        );
-
-    }
-
     // 3. ATTACK_DAMAGE attribute for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
-    private double visor$attackDamage(Player self, Attribute attribute, Operation<Double> original) {
+            target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/core/Holder;)D"))
+    private double visor$attackDamage(Player self, Holder<Attribute> attribute, Operation<Double> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
         if (vrPlayer == null) {
             return original.call(self, attribute);
         }
-        if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
+        if (attribute == Attributes.ATTACK_DAMAGE
+                && visor$attackHand(vrPlayer) == HandType.OFFHAND) {
             return visor$withOffhandAttributes(() -> original.call(self, attribute));
         }
         return original.call(self, attribute);
     }
 
     // 4. EnchantmentHelper for offhand
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
-    private int visor$knockback(LivingEntity selfEntity, Operation<Integer> original) {
-        if(!(selfEntity instanceof Player self)){
-            return original.call(selfEntity);
-        }
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
-        if (vrPlayer == null) {
-            return original.call(selfEntity);
-        }
-        if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
-            return EnchantmentHelper.getItemEnchantmentLevel(
-                    self.level().registryAccess()
-                            .registryOrThrow(Registries.ENCHANTMENT)
-                            .getHolderOrThrow(Enchantments.KNOCKBACK),
-                    self.getOffhandItem()
-            );
-        }
-        return original.call(selfEntity);
+    // NOTE: 1.21.1 reworked player attack; knockback is no longer applied via
+    // EnchantmentHelper.getKnockbackBonus inside Player.attack, so the offhand
+    // knockback wrap is not applicable anymore. Kept as no-op placeholder for future rework.
+    @Unique
+    private int visor$unusedKnockback() {
+        return 0;
     }
 
 
