@@ -175,10 +175,14 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
         ResourceLocation skin = this.getTextureLocation(player);
 
+        // Arm frame is mirrored (see VRHandRenderer.renderWorldArm), which inverts
+        // the cube winding — cull both sides so the arm stays visible.
+        RenderSystem.disableCull();
         arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
         sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
+        RenderSystem.enableCull();
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

@@ -177,6 +177,10 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
 
         ResourceLocation playerSkin = this.getTextureLocation(player);
 
+        // Arm frame is mirrored (see VRHandRenderer.renderWorldArm), which inverts
+        // the cube winding — cull both sides so the arm stays visible.
+        RenderSystem.disableCull();
+
         // render hand
         rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
@@ -184,6 +188,8 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         // render armor
         rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
+
+        RenderSystem.enableCull();
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

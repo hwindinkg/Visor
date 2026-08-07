@@ -632,6 +632,16 @@ public class VRHandRenderer {
         );
         ModelUtils.controllerToModelOrientation(poseStack);
 
+        // The vanilla skin texture maps the thumb side of the arm box onto its
+        // -Z face. After controllerToModelOrientation (Rx(-90) * Ry(180)) that
+        // face would point DOWN for a natural controller grip, rendering the
+        // hand as a vertical mirror (thumb down, "strange"/mirrored look, and
+        // items pointing up while the hand rolls the opposite way). Flipping the
+        // Z axis of the arm frame puts the thumb side UP while keeping the palm
+        // medial and the arm pointing back toward the shoulder. The arm parts
+        // are rendered with culling disabled (see VRPlayerRenderer*).
+        poseStack.scale(1.0F, 1.0F, -1.0F);
+
         var bodyRenderer = vrPlayer.getBodyType().getRenderer()
                 .getModelRenderer(
                         vrPlayer,
