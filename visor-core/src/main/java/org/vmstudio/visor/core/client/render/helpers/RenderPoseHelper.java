@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -78,8 +79,39 @@ public class RenderPoseHelper {
     public static void applyHandPose(HandType hand,
                                      PoseStack poseStack) {
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        Vector3fc cameraPos = getCameraPosition(VRRenderState.getRenderPass(), renderPose);
-        applyHandPose(renderPose, hand, cameraPos, poseStack);
+
+        // Use raw (room-space, no rotationY/origin) hand pose against the raw
+        // camera origin: the world rotation (rotationY from stick rotate) is
+        // applied exactly once, by the camera orientation. Using the already
+        // rotated hand pose here would cancel the camera rotationY out, leaving
+        // the hands fixed to the viewport while the world turns around them.
+        var handPose = renderPose.getBody().getHand(hand).getPose();
+        Vector3fc cameraRawPos = renderPose
+                .getCameraPose(VRRenderState.getRenderPass())
+                .getRawPosition();
+        applyHandPoseRaw(handPose, cameraRawPos, renderPose.getWorldScale(), poseStack);
+    }
+
+    private static void applyHandPoseRaw(VRPose handPose,
+                                         Vector3fc referenceRawPos,
+                                         float worldScale,
+                                         PoseStack poseStack) {
+        // move origin to hand position relative to the reference origin
+        var handRawPos = handPose.getRawPosition();
+
+        var relative = handRawPos.sub(referenceRawPos, new Vector3f())
+                .mul(worldScale, new Vector3f());
+        poseStack.translate(relative.x, relative.y, relative.z);
+
+        // apply hand's inverse rotation (raw, rotationY comes from the camera)
+        Matrix4f invRot = handPose
+                .getRawRotation()
+                .invert(new Matrix4f())
+                .transpose(new Matrix4f());
+        poseStack.last().pose().mul(invRot);
+
+        // scale to world scale
+        poseStack.scale(worldScale, worldScale, worldScale);
     }
 
     public static void applyHandPose(VRPlayerPoseClient renderPose,
