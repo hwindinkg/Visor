@@ -572,6 +572,9 @@ public final class VRMenuSky {
     private static void renderSkyBox(BufferBuilder builder,
                                      Matrix4f pose){
         builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        // 1.21.1 GL pipeline: a shader must be bound before BufferUploader.drawWithShader,
+        // otherwise GL_INVALID_OPERATION "No active program" is generated every frame.
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         // -Z wall
         horizon(builder, pose, -SKY_BOX, -SKY_BOX, -SKY_BOX);
@@ -960,6 +963,9 @@ public final class VRMenuSky {
         float cullDistance = CLOUD_RANGE + 24f;
 
         builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        // 1.21.1 GL pipeline: a shader must be bound before BufferUploader.drawWithShader,
+        // otherwise GL_INVALID_OPERATION "No active program" is generated every frame.
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
             for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
                 if (hash01(cellX, cellZ, 0) > CLOUD_FILL) {

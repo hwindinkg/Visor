@@ -110,6 +110,9 @@ public class RenderHelper {
                 addVertex(bufferBuilder, poseMatrix, pos, color, normal);
             }
         }
+        // 1.21.1 GL pipeline: a shader must be bound before BufferUploader.drawWithShader,
+        // otherwise GL_INVALID_OPERATION "No active program" is generated every frame.
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferUploader.drawWithShader(bufferBuilder.build());
     }
 
@@ -146,6 +149,9 @@ public class RenderHelper {
                     .setColor(r, g, b, a)
                     .setNormal(normal.x(), normal.y(), normal.z());
         }
+        // 1.21.1 GL pipeline: a shader must be bound before BufferUploader.drawWithShader,
+        // otherwise GL_INVALID_OPERATION "No active program" is generated every frame.
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferUploader.drawWithShader(bufferBuilder.build());
 
     }
