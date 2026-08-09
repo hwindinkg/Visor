@@ -1,6 +1,7 @@
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +23,11 @@ public class GlStateManagerMixin {
     // dstAlpha first, because that is the variable we are changing
     @ModifyVariable(method = "_blendFuncSeparate", at = @At("HEAD"), remap = false, index = 3, argsOnly = true)
     private static int visor$guiAlphaBlending(int dstAlpha, int srcRgb, int dstRgb, int srcAlpha) {
+        // vanilla GUI path must keep vanilla blending untouched:
+        // the alpha-accumulation correction is only needed for VR eye targets
+        if (VisorState.get().isNotActive()) {
+            return dstAlpha;
+        }
         if (srcRgb == GlStateManager.SourceFactor.SRC_ALPHA.value &&
                 dstRgb == GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value &&
                 srcAlpha == GlStateManager.SourceFactor.ONE.value &&

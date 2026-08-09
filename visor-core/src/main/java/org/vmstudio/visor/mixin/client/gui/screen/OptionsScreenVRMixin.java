@@ -1,6 +1,7 @@
 package org.vmstudio.visor.mixin.client.gui.screen;
 
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
+import org.vmstudio.visor.core.client.VisorState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -23,6 +24,10 @@ public class OptionsScreenVRMixin extends Screen {
 
     @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;I)Lnet/minecraft/client/gui/layouts/LayoutElement;"))
     private int visor$vrSpacerSize(int layoutElement) {
+        // vanilla Options layout must stay untouched when VR is inactive
+        if (VisorState.get().isNotActive()) {
+            return layoutElement;
+        }
         return 1;
     }
 
@@ -30,6 +35,10 @@ public class OptionsScreenVRMixin extends Screen {
     private void visor$addVRSettingsButton(CallbackInfo ci,
                                           GridLayout gridLayout,
                                           GridLayout.RowHelper rowHelper) {
+        // no VR settings button in vanilla Options
+        if (VisorState.get().isNotActive()) {
+            return;
+        }
         rowHelper.addChild(new Button.Builder(Component.translatable("visor.options.main.button"), (p) ->
         {
             Minecraft.getInstance().options.save();

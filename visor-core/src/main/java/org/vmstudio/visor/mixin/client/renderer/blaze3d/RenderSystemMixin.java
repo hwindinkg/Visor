@@ -27,6 +27,11 @@ public class RenderSystemMixin {
     @ModifyArg(method = "defaultBlendFunc", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;blendFuncSeparate(Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;)V", remap = true), remap = false, index = 3)
     private static GlStateManager.DestFactor visor$defaultBlendFuncAlphaBlending(
             GlStateManager.DestFactor destFactor) {
+        // vanilla GUI path must keep vanilla blending untouched:
+        // the alpha-accumulation correction is only needed for VR eye targets
+        if (VisorState.get().isNotActive()) {
+            return destFactor;
+        }
         return GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
     }
 
