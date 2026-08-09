@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
@@ -33,6 +34,10 @@ public class EntityRendererMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;cameraOrientation()Lorg/joml/Quaternionf;"), method = "renderNameTag")
     public Quaternionf visor$vrNameTagCameraOrient(EntityRenderDispatcher instance, Entity entity) {
+        // vanilla name tags keep the vanilla camera-rotation billboard
+        if (VisorState.get().isNotActive()) {
+            return instance.cameraOrientation();
+        }
         float heightScale = 1.0f;
         VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(entity);
         if (vrPlayer != null) {
