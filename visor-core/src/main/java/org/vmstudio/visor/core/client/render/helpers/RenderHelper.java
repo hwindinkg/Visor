@@ -29,6 +29,11 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class RenderHelper {
     private static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
 
+    /** Minimum interval between WARN logs for soft GL errors, to avoid per-frame spam. */
+    private static final long GL_ERROR_LOG_INTERVAL_MS = 5000L;
+    /** Last time a soft GL error was actually logged (0 = never logged yet). */
+    private static long lastLoggedErrorTime = 0L;
+
     private RenderHelper() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
@@ -38,11 +43,22 @@ public class RenderHelper {
      * Used at vanilla pipeline stages where GL errors may have been left by other
      * mods (Sodium etc.). Note: GLUtils.drainGLErrors() returns the first error
      * code (0 = no errors), not a count.
+     *
+     * <p>Errors are always drained so they never accumulate; the WARN itself is
+     * rate-limited to one per {@link #GL_ERROR_LOG_INTERVAL_MS} per JVM, since
+     * foreign mods can leave the same error in the pipeline every frame.
      */
     public static void logGLErrorSoft(String stage) {
         int firstError = GLUtils.drainGLErrors();
         if (firstError != 0) {
-            LOGGER.warn("OpenGL error code {} at stage '{}' - ignored (may be left by other mods)", firstError, stage);
+            long now = System.currentTimeMillis();
+            boolean firstLog = lastLoggedErrorTime == 0L;
+            if (firstLog || now - lastLoggedErrorTime >= GL_ERROR_LOG_INTERVAL_MS) {
+                lastLoggedErrorTime = now;
+                String suppressedHint = firstLog ? "" : " (repeated errors suppressed for 5s)";
+                LOGGER.warn("OpenGL error code {} at stage '{}' - ignored (may be left by other mods){}",
+                        firstError, stage, suppressedHint);
+            }
         }
     }
 
